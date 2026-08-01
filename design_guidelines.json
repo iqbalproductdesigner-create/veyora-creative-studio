@@ -1,0 +1,194 @@
+{
+  "project_name": "Veyora Creative Studio",
+  "theme": "dark",
+  "style": {
+    "core_principles": [
+      "Modern, Minimal, Elegant, Premium, Professional",
+      "Award-worthy, bold cohesive art direction",
+      "Lots of whitespace, rounded corners, soft shadows, large typography",
+      "Real product photography treated deliberately (spotlight, clipped frames)"
+    ],
+    "avoid": [
+      "Glassmorphism",
+      "Neon colors",
+      "Overly colorful gradients",
+      "Heavy animations",
+      "Complex decorations",
+      "Visual clutter"
+    ]
+  },
+  "typography": {
+    "headings": {
+      "family": "Outfit, sans-serif",
+      "description": "Modern, friendly yet premium geometric sans. Creates a professional but approachable feel.",
+      "weights": ["500", "700"],
+      "usage": "H1 to H4. Tracking tight for larger sizes."
+    },
+    "body": {
+      "family": "DM Sans, sans-serif",
+      "description": "Highly legible, comfortable, and clean sans-serif for reading.",
+      "weights": ["400", "500"],
+      "usage": "Paragraphs, labels, button text, subtle UI elements."
+    },
+    "editorial_accents": {
+      "family": "Playfair Display, serif",
+      "description": "Used ONLY for signature moments, large statistic numbers, and numbered manifesto chapters.",
+      "weights": ["400", "600"],
+      "usage": "Large numbers, quotes, special artistic typography moments."
+    },
+    "scale": {
+      "h1": "text-5xl md:text-6xl+ tracking-tighter leading-tight font-bold",
+      "h2": "text-3xl md:text-5xl tracking-tight leading-tight font-bold",
+      "h3": "text-2xl md:text-3xl tracking-tight leading-snug font-medium",
+      "h4": "text-xl md:text-2xl leading-snug font-medium",
+      "body_lg": "text-lg md:text-xl leading-relaxed",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm leading-normal uppercase tracking-widest"
+    }
+  },
+  "colors": {
+    "rules": "STRICT COLOR SYSTEM. ONLY these colors. 80% Neutral, 15% White, 5% Accent. Accent used ONLY to highlight important actions.",
+    "palette": {
+      "background": {
+        "hex": "#080D10",
+        "tailwind": "bg-[#080D10]",
+        "usage": "Main page background. Deep, near-black neutral."
+      },
+      "surface": {
+        "hex": "#121417",
+        "tailwind": "bg-[#121417]",
+        "usage": "Cards, drawers, accordion bodies, admin panels."
+      },
+      "border": {
+        "hex": "#23262B",
+        "tailwind": "border-[#23262B]",
+        "usage": "Separators, card borders, input borders. Essential for defining structure without glassmorphism."
+      },
+      "primary_text": {
+        "hex": "#FFFFFF",
+        "tailwind": "text-[#FFFFFF]",
+        "usage": "Headings, primary body text, active state icons."
+      },
+      "secondary_text": {
+        "hex": "#A3AAB4",
+        "tailwind": "text-[#A3AAB4]",
+        "usage": "Supporting descriptions, disabled states, placeholders, metadata."
+      },
+      "primary_accent": {
+        "hex": "#5C6773",
+        "tailwind": "bg-[#5C6773] text-[#5C6773]",
+        "usage": "Primary CTA buttons, active states, progress indicators. Used very sparingly (5%)."
+      },
+      "secondary": {
+        "hex": "#D9DEE6",
+        "tailwind": "bg-[#D9DEE6] text-[#D9DEE6]",
+        "usage": "Secondary buttons (hover states), subtle highlights, pill badges."
+      }
+    }
+  },
+  "spacing_and_layout": {
+    "grid_system": "8pt base scale",
+    "container": "max-w-7xl mx-auto px-6 md:px-12",
+    "section_spacing": "py-24 md:py-32",
+    "element_spacing": {
+      "tight": "gap-2 md:gap-4",
+      "normal": "gap-6 md:gap-8",
+      "loose": "gap-12 md:gap-16"
+    },
+    "border_radius": {
+      "cards": "rounded-2xl",
+      "buttons": "rounded-full",
+      "badges": "rounded-full",
+      "images": "rounded-xl"
+    },
+    "shadows": {
+      "subtle": "shadow-[0_8px_30px_rgb(0,0,0,0.12)]",
+      "glow": "shadow-[0_0_20px_rgba(92,103,115,0.15)]"
+    }
+  },
+  "components": {
+    "navbar": {
+      "structure": "Sticky on scroll, Solid background #080D10 with bottom border #23262B. NO logo image. Typography only 'VEYORA / Creative Studio'.",
+      "links": "Home, Services, Portfolio, FAQ, Contact",
+      "cta": "Primary button 'Konsultasi Gratis'"
+    },
+    "buttons": {
+      "primary": "bg-[#5C6773] text-white rounded-full px-6 py-3 font-medium hover:brightness-110 transition-all",
+      "secondary": "bg-transparent border border-[#23262B] text-[#FFFFFF] rounded-full px-6 py-3 font-medium hover:bg-[#121417] transition-all"
+    },
+    "cards": {
+      "service_card": "bg-[#121417] border border-[#23262B] rounded-2xl p-8 hover:-translate-y-1 transition-transform. Includes image, title, short desc, starting price, estimated time, and 'View Detail' secondary button.",
+      "portfolio_card": "Image focused, rounded-xl overflow-hidden group. Image scales slightly on hover. Title and category appear on hover or sit below image."
+    },
+    "side_drawer": {
+      "usage": "Portfolio details open in a drawer (not new page).",
+      "style": "bg-[#121417] border-l border-[#23262B] w-full md:w-[600px] h-full shadow-2xl p-8.",
+      "content": "Gallery, Overview, Challenge, Solution, Deliverables, Related Service, CTA."
+    },
+    "accordion": {
+      "usage": "FAQ Section.",
+      "style": "bg-transparent border-b border-[#23262B]. Title text-[#FFFFFF], content text-[#A3AAB4]."
+    }
+  },
+  "motion_and_interaction": {
+    "libraries": ["framer-motion", "lenis"],
+    "scrolling": "Lenis for smooth momentum scrolling. Feels premium and weighty.",
+    "hero_reveal": "Signature on-load moment: Masked line-by-line reveal of the H1 text. Staggered fade up for supporting elements.",
+    "parallax": "Subtle parallax on the hero large product/device mockup. Spotlight effect moving slightly with mouse.",
+    "marquee": "One slow editorial marquee (e.g., 'Creative Partner • Brand Identity • Visual Design') using Playfair Display, text-[#23262B] or text-[#121417] large outline typography running infinitely.",
+    "micro_interactions": "Buttons scale slightly down on click. Images in portfolio scale 1.05 on hover. Substantive but not distracting."
+  },
+  "pages_and_sections": {
+    "homepage_flow": [
+      "Hero: Headline, supporting description, primary CTA, secondary CTA, large product mockup, trust indicators.",
+      "Statistics: Numbers using Playfair Display.",
+      "Why Choose Veyora: Business-outcome cards.",
+      "Services: Grid of reusable cards.",
+      "Portfolio: Modern grid with categories (Packaging, Logo, etc.). Clicking opens Side Drawer.",
+      "Working Process: 4 numbered steps (Manifesto chapters).",
+      "Testimonials: Modern cards.",
+      "FAQ: Accordion.",
+      "Final CTA: Large text, minimal, primary button.",
+      "Footer: Clean, minimal links."
+    ],
+    "admin_panel": {
+      "style": "bg-[#080D10] text-white. Sidebar nav bg-[#121417]. Clean Shadcn-based data tables, forms with #23262B borders. Strict adherence to color palette. Dense layout for productivity."
+    }
+  },
+  "media_and_images": {
+    "treatment": "Real product photography treated deliberately. Use clipped frames, dramatic spotlighting. No generic vectors.",
+    "image_urls": {
+      "hero_mockup": {
+        "url": "https://images.unsplash.com/photo-1698376621004-70ce754157d1",
+        "description": "Minimal packaging white box with black label. Excellent for the large spotlight mockup in hero."
+      },
+      "portfolio_item_1": {
+        "url": "https://images.unsplash.com/photo-1702479744181-2d6b58941583",
+        "description": "Close up of a premium business card. Represents Brand Identity/Logo service."
+      },
+      "process_designer": {
+        "url": "https://images.unsplash.com/photo-1626868713255-cb0c4640a529",
+        "description": "Black laptop computer on brown wooden table in a dark room. Good for Working Process section."
+      }
+    }
+  },
+  "accessibility_and_testing": {
+    "contrast": "All text must pass WCAG AA. Primary text #FFFFFF against #080D10 passes easily. Accent #5C6773 must only be used on #FFFFFF text or as background for white text where contrast is sufficient.",
+    "testing": "All interactive elements (buttons, links, form inputs, accordion triggers) MUST include a 'data-testid' attribute (e.g., data-testid='hero-cta-button')."
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette. DO NOT invent new shades of gray. Stick to #080D10, #121417, #23262B, #A3AAB4, #FFFFFF.",
+    "Ensure no completely transparent backgrounds over scrolling content (e.g., sticky navbar must have solid #080D10 background).",
+    "Implement Framer Motion for the line-by-line masked text reveal in the hero section.",
+    "Use Lenis for smooth scrolling.",
+    "Ensure the Portfolio section triggers a side drawer (using Shadcn Sheet or custom Framer Motion drawer), NOT a new route.",
+    "Keep spacing highly generous (py-24 or py-32 for sections) to maintain the premium feel.",
+    "Build a separate robust Admin CMS using Shadcn components matching the dark theme."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "Do not apply `transition: all` to everything, be specific.",
+    "Do not center-align the app container (`.App { text-align: center; }` is forbidden).",
+    "Never use placeholder URLs (like via.placeholder.com) for images.",
+    "Ensure layering creates depth without relying on colorful gradients or heavy glassmorphism."
+  ]
+}
