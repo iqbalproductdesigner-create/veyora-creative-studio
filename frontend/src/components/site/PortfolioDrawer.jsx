@@ -6,7 +6,14 @@ import { waLink } from "../../lib/whatsapp";
 
 export default function PortfolioDrawer({ item, onClose }) {
   const { settings, services } = useContent();
-  const related = services?.find((s) => s.category === item?.category);
+  const relatedSlugs = item?.related_services?.length
+    ? item.related_services
+    : (item?.related_service ? [item.related_service] : []);
+  let related = (services || []).filter((s) => relatedSlugs.includes(s.slug));
+  if (related.length === 0 && item) {
+    const byCat = services?.find((s) => s.category === item.category);
+    related = byCat ? [byCat] : [];
+  }
 
   useEffect(() => {
     if (item) {
@@ -94,15 +101,20 @@ export default function PortfolioDrawer({ item, onClose }) {
                   </ul>
                 </div>
 
-                {related && (
+                {related.length > 0 && (
                   <div className="surface-card bg-[#080D10] p-6">
-                    <p className="eyebrow mb-2">Layanan Terkait</p>
-                    <a
-                      href={`/services/${related.slug}`}
-                      className="font-head text-white text-lg hover:text-[#D9DEE6] transition-colors inline-flex items-center gap-2"
-                    >
-                      {related.title} <ArrowRight className="w-4 h-4" />
-                    </a>
+                    <p className="eyebrow mb-3">Layanan Terkait</p>
+                    <div className="flex flex-col gap-3">
+                      {related.map((r) => (
+                        <a
+                          key={r.slug}
+                          href={`/services/${r.slug}`}
+                          className="font-head text-white text-lg hover:text-[#D9DEE6] transition-colors inline-flex items-center gap-2"
+                        >
+                          {r.title} <ArrowRight className="w-4 h-4" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
 

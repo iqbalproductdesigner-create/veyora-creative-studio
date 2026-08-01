@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ContentProvider } from "./context/ContentContext";
@@ -35,25 +36,27 @@ function PublicSite() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ContentProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/*" element={<PublicSite />} />
-          </Routes>
-          <Toaster position="top-right" theme="dark" />
-        </BrowserRouter>
-      </ContentProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <ContentProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/*" element={<PublicSite />} />
+            </Routes>
+            <Toaster position="top-right" theme="dark" />
+          </BrowserRouter>
+        </ContentProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

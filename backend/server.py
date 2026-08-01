@@ -13,12 +13,14 @@ from typing import List, Optional, Any
 import bcrypt
 import jwt
 from bson import ObjectId
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, UploadFile, File, Query, Header
+from fastapi.responses import Response
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
 from seed_data import DEFAULT_HOMEPAGE, DEFAULT_SETTINGS, DEFAULT_SERVICES, DEFAULT_PORTFOLIO, DEFAULT_FAQS
+from storage import init_storage, put_object, get_object, APP_NAME, MIME_TYPES
 
 # ------------------------------------------------------------------ #
 # Config
@@ -106,6 +108,8 @@ class ServiceModel(BaseModel):
     related_portfolio: List[str] = []
     seo_title: str = ""
     seo_description: str = ""
+    og_image: str = ""
+    status: str = "published"
     order: int = 0
 
 
@@ -120,8 +124,11 @@ class PortfolioModel(BaseModel):
     solution: str = ""
     deliverables: List[str] = []
     related_service: str = ""
+    related_services: List[str] = []
     seo_title: str = ""
     seo_description: str = ""
+    og_image: str = ""
+    status: str = "published"
     order: int = 0
 
 
@@ -192,7 +199,7 @@ async def get_settings():
 
 @api_router.get("/services")
 async def list_services():
-    docs = await db.services.find({}, {"_id": 0}).sort("order", 1).to_list(200)
+    docs = await db.services.find({"status": {"$ne": "draft"}}, {"_id": 0}).sort("order", 1).to_list(200)
     return docs
 
 
@@ -206,7 +213,7 @@ async def get_service(slug: str):
 
 @api_router.get("/portfolio")
 async def list_portfolio():
-    docs = await db.portfolio.find({}, {"_id": 0}).sort("order", 1).to_list(200)
+    docs = await db.portfolio.find({"status": {"$ne": "draft"}}, {"_id": 0}).sort("order", 1).to_list(200)
     return docs
 
 
@@ -214,6 +221,63 @@ async def list_portfolio():
 async def list_faqs():
     docs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(200)
     return docs
+
+
+# ------------------------------------------------------------------ #
+# File upload / serving
+# ------------------------------------------------------------------ #
+@api_router.post("/admin/upload")
+async def upload_image(file: UploadFile = File(...), current=Depends(get_current_user)):
+    ext = (file.filename.rsplit(".", 1)[-1] if "." in (file.filename or "") else "bin").lower()
+    if ext not in MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Format gambar tidak didukung (png, jpg, webp, gif, svg).")
+    data = await file.read()
+    if len(data) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Ukuran gambar maksimal 8MB.")
+    path = f"{APP_NAME}/uploads/{uuid.uuid4()}.{ext}"
+    content_type = file.content_type or MIME_TYPES.get(ext, "application/octet-stream")
+    try:
+        result = put_object(path, data, content_type)
+    except Exception as e:
+        logger.error(f"Upload failed: {e}")
+        raise HTTPException(status_code=502, detail="Gagal mengunggah gambar. Coba lagi.")
+    stored_path = result["path"]
+    await db.files.insert_one({
+        "id": str(uuid.uuid4()),
+        "storage_path": stored_path,
+        "original_filename": file.filename,
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "is_deleted": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    base = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+    return {"url": f"{base}/api/files/{stored_path}", "path": stored_path}
+
+
+@api_router.get("/files/{path:path}")
+async def serve_file(path: str):
+    record = await db.files.find_one({"storage_path": path, "is_deleted": False})
+    ct = record.get("content_type") if record else None
+    try:
+        data, content_type = get_object(path)
+    except Exception:
+        raise HTTPException(status_code=404, detail="File tidak ditemukan")
+    return Response(content=data, media_type=ct or content_type,
+                    headers={"Cache-Control": "public, max-age=31536000"})
+
+
+# ------------------------------------------------------------------ #
+# Admin list (includes drafts)
+# ------------------------------------------------------------------ #
+@api_router.get("/admin/services")
+async def admin_list_services(current=Depends(get_current_user)):
+    return await db.services.find({}, {"_id": 0}).sort("order", 1).to_list(500)
+
+
+@api_router.get("/admin/portfolio")
+async def admin_list_portfolio(current=Depends(get_current_user)):
+    return await db.portfolio.find({}, {"_id": 0}).sort("order", 1).to_list(500)
 
 
 # ------------------------------------------------------------------ #
@@ -334,6 +398,16 @@ async def seed_content():
         await db.portfolio.insert_many([dict(p) for p in DEFAULT_PORTFOLIO])
     if await db.faqs.count_documents({}) == 0:
         await db.faqs.insert_many([dict(f) for f in DEFAULT_FAQS])
+    # Backfill fields added after initial seed
+    await db.services.update_many({"status": {"$exists": False}}, {"$set": {"status": "published", "og_image": ""}})
+    await db.portfolio.update_many({"status": {"$exists": False}}, {"$set": {"status": "published", "og_image": ""}})
+    cat_slug = {
+        "Packaging": "packaging-design", "Logo": "logo-design", "Sticker": "sticker-label-design",
+        "Landing Page": "landing-page-design", "Marketplace": "marketplace-design", "Motion": "motion-graphic",
+    }
+    async for p in db.portfolio.find({"$or": [{"related_services": {"$exists": False}}, {"related_services": []}]}):
+        rel = p.get("related_service") and [p["related_service"]] or ([cat_slug[p["category"]]] if p.get("category") in cat_slug else [])
+        await db.portfolio.update_one({"id": p["id"]}, {"$set": {"related_services": rel}})
 
 
 @app.on_event("startup")
@@ -341,6 +415,11 @@ async def on_startup():
     await db.users.create_index("email", unique=True)
     await seed_admin()
     await seed_content()
+    try:
+        init_storage()
+        logger.info("Storage initialized")
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
     logger.info("Startup complete")
 
 

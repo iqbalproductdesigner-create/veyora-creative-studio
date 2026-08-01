@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 2 testing (image upload, drafts, admin lists, related_services, dynamic WA, per-page SEO). Backend: added /app/backend/tests/test_iteration2.py — 8/8 new tests pass; full regression 29/29 (21 legacy + 8 new). Frontend: verified via Playwright (real preview URL): Home SEO OK; service detail /services/packaging-design updates document.title to 'Packaging Design — Veyora Creative Studio' and sets og:image to service hero. Dynamic WhatsApp on hero + 'Pilih Paket' buttons produces correct wa.me link decoded to include service title 'Packaging Design' and Bahasa Indonesia template mentioning 'proses', 'harga', 'waktu'. Admin login (admin@veyora.studio/veyora2025) OK. Services tab renders ImageUpload with 'Unggah' button (data-testid service-thumb-upload) and URL paste input — pasting URL updates preview. New draft service created via UI: title auto-generated slug in slug field (test-draft-…), status Draft, saved, appears with 'Draft' badge in admin list, and does NOT appear on the public homepage. Cleaned up via admin API. Backend upload endpoint returns absolute URL that GETs back the same PNG bytes with image/* content-type; non-image returns 400; unauthenticated returns 401. Draft filtering verified end-to-end on both services and portfolio. related_services + og_image + status persisted correctly for portfolio (POST and PUT).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Service detail <head>", "issues": ["Duplicate <meta property=\"og:title\">: the static tag from public/index.html is not removed by react-helmet-async on route change (Helmet appends a second og:title tag). document.title and og:image do update correctly. Social crawlers reading the first tag may still see the default site title. Consider removing the static og:title from index.html (leave a generic default only in <title>) or ensure Helmet manages that tag."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_iteration2.py",
+    "/app/test_reports/pytest/iter2_results.xml"
+  ],
+  "action_items": [
+    "Optional: remove the static <meta property=\"og:title\"> from /app/frontend/public/index.html so per-page Helmet og:title is the single authoritative tag."
+  ],
+  "critical_code_review_comments": [
+    "server.py: PUT /admin/services|portfolio|faqs still use upsert=True — unknown id creates a new doc instead of returning 404 (carried over from iter 1).",
+    "server.py upload: only extension is validated; the actual file bytes aren't sniffed. A .png file with non-image content will still be accepted. Consider validating with python-magic or imghdr.",
+    "server.py serve_file: falls back to storage helper's content_type when no db record — if a record's is_deleted=True the file is still returned by the storage layer (only DB record is filtered). Acceptable but note it.",
+    "Frontend ImageUpload: renders <img src=\"\"> when value is empty (see console warning). Guard the <img> render or pass null."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration2.py (new)"
+  ],
+  "success_rate": { "backend": "100% (29/29)", "frontend": "100% of covered flows" },
+  "test_credentials": "admin@veyora.studio / veyora2025",
+  "seed_data_creation": "None. Test-created services/portfolio (TEST_* / test-draft-*) were deleted via DELETE endpoints.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend suites: /app/backend/tests/backend_test.py (iter 1, 21) and /app/backend/tests/test_iteration2.py (iter 2, 8). Run with `pytest /app/backend/tests -p no:cacheprovider`. Emergent object storage is real — uploads produce absolute URLs served via GET /api/files/{path}. Auth is Bearer token from POST /api/auth/login, stored in localStorage as 'veyora_token'. Public /api/services and /api/portfolio filter status != 'draft'; /api/admin/{services,portfolio} require token and include drafts. Draft/publish tested; related_services (string[]) persists. Static og:title in index.html duplicates the Helmet-managed one on service pages — flagged for main agent."
+}

@@ -62,7 +62,7 @@ def _service(title, slug, category, thumb, hero, short, full, price, time, benef
         "benefits": benefits, "pricing": pricing, "addons": addons,
         "faqs": faqs, "related_portfolio": [],
         "seo_title": f"{title} — Veyora Creative Studio",
-        "seo_description": short, "order": order,
+        "seo_description": short, "og_image": "", "status": "published", "order": order,
     }
 
 
@@ -141,13 +141,20 @@ DEFAULT_SERVICES = [
 ]
 
 
-def _portfolio(name, category, thumb, gallery, overview, challenge, solution, deliverables, order):
+def _portfolio(name, category, thumb, gallery, overview, challenge, solution, deliverables, order, related=None):
+    cat_slug = {
+        "Packaging": "packaging-design", "Logo": "logo-design", "Sticker": "sticker-label-design",
+        "Landing Page": "landing-page-design", "Marketplace": "marketplace-design", "Motion": "motion-graphic",
+    }
+    rel = related or ([cat_slug[category]] if category in cat_slug else [])
     return {
         "id": str(uuid.uuid4()),
         "project_name": name, "category": category, "thumbnail": thumb,
         "gallery": gallery, "overview": overview, "challenge": challenge,
-        "solution": solution, "deliverables": deliverables, "related_service": "",
-        "seo_title": f"{name} — Portfolio Veyora", "seo_description": overview, "order": order,
+        "solution": solution, "deliverables": deliverables,
+        "related_service": rel[0] if rel else "", "related_services": rel,
+        "seo_title": f"{name} — Portfolio Veyora", "seo_description": overview,
+        "og_image": "", "status": "published", "order": order,
     }
 
 

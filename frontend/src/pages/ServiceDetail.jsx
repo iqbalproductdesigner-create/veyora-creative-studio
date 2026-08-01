@@ -11,8 +11,9 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "../components/ui/accordion";
 import { useContent } from "../context/ContentContext";
-import { waLink } from "../lib/whatsapp";
+import { waLink, serviceWaMessage } from "../lib/whatsapp";
 import { fadeUp, stagger, viewport } from "../lib/motionVariants";
+import Seo from "../components/site/Seo";
 
 export default function ServiceDetail() {
   const { slug } = useParams();
@@ -57,11 +58,19 @@ export default function ServiceDetail() {
   }
 
   const relatedServices = (services || []).filter((s) => s.slug !== slug).slice(0, 3);
-  const relatedPortfolio = (portfolio || []).filter((p) => p.category === service.category).slice(0, 3);
-  const waMsg = `Halo Veyora, saya tertarik dengan layanan ${service.title}. Boleh info lebih lanjut?`;
+  const relatedPortfolio = (portfolio || []).filter(
+    (p) => (p.related_services || []).includes(slug) || p.category === service.category
+  ).slice(0, 3);
+  const waMsg = serviceWaMessage(service.title);
 
   return (
     <div className="bg-[#080D10]">
+      <Seo
+        title={service.seo_title || `${service.title} — Veyora Creative Studio`}
+        description={service.seo_description || service.short_description}
+        image={service.og_image || service.hero_image || service.thumbnail}
+        url={typeof window !== "undefined" ? window.location.href : ""}
+      />
       <Navbar />
       <main className="pt-20">
         {/* Hero */}

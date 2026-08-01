@@ -14,9 +14,10 @@ import Testimonials from "../components/home/Testimonials";
 import Faq from "../components/home/Faq";
 import FinalCTA from "../components/home/FinalCTA";
 import { useContent } from "../context/ContentContext";
+import Seo from "../components/site/Seo";
 
 export default function Home() {
-  const { loading, settings } = useContent();
+  const { loading, settings, homepage } = useContent();
   const location = useLocation();
 
   useEffect(() => {
@@ -45,6 +46,12 @@ export default function Home() {
 
   return (
     <div className="bg-[#080D10]">
+      <Seo
+        title={settings?.default_seo_title}
+        description={settings?.default_seo_description}
+        image={homepage?.hero_image}
+        url={typeof window !== "undefined" ? window.location.origin : ""}
+      />
       <Navbar />
       <main>
         <Hero />

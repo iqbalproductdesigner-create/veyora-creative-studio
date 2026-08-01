@@ -3,6 +3,7 @@ import { Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Field, Area, ObjectList } from "./fields";
+import { ImageUpload } from "./ImageUpload";
 
 export default function HomepagePanel() {
   const [data, setData] = useState(null);
@@ -31,8 +32,7 @@ export default function HomepagePanel() {
     <div className="max-w-3xl space-y-6" data-testid="panel-homepage">
       <Field label="Headline" value={data.headline} onChange={(v) => set("headline", v)} testid="hp-headline" />
       <Area label="Deskripsi" value={data.description} onChange={(v) => set("description", v)} testid="hp-desc" />
-      <Field label="Hero Image (URL)" value={data.hero_image} onChange={(v) => set("hero_image", v)} />
-      {data.hero_image && <img src={data.hero_image} alt="preview" className="w-48 rounded-lg border border-[#23262B]" />}
+      <ImageUpload label="Hero Image" value={data.hero_image} onChange={(v) => set("hero_image", v)} testid="hp-hero-upload" />
       <div className="grid grid-cols-2 gap-4">
         <Field label="Tombol Utama" value={data.primary_cta} onChange={(v) => set("primary_cta", v)} />
         <Field label="Tombol Sekunder" value={data.secondary_cta} onChange={(v) => set("secondary_cta", v)} />
