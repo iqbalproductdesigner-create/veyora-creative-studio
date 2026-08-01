@@ -570,6 +570,21 @@ async def seed_content():
     async for p in db.portfolio.find({"$or": [{"slug": {"$exists": False}}, {"slug": ""}]}):
         base = slugify(p.get("project_name", ""))
         await db.portfolio.update_one({"id": p["id"]}, {"$set": {"slug": await _unique_portfolio_slug(base, exclude_id=p["id"])}})
+    # Backfill package descriptions for default packages
+    _pkg_desc = {
+        "Starter": "Pas untuk yang baru mulai dan butuh satu desain solid.",
+        "Standard": "Pilihan paling populer dengan lebih banyak opsi & revisi.",
+        "Premium": "Paket lengkap untuk hasil maksimal tanpa batas revisi.",
+    }
+    async for s in db.services.find({}):
+        pricing = s.get("pricing") or []
+        changed = False
+        for pkg in pricing:
+            if not pkg.get("description") and pkg.get("name") in _pkg_desc:
+                pkg["description"] = _pkg_desc[pkg["name"]]
+                changed = True
+        if changed:
+            await db.services.update_one({"id": s["id"]}, {"$set": {"pricing": pricing}})
 
 
 @app.on_event("startup")

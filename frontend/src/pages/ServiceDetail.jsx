@@ -5,16 +5,22 @@ import { MessageCircle, Check, ArrowRight, ArrowLeft, Clock } from "lucide-react
 import api from "../lib/api";
 import Navbar from "../components/site/Navbar";
 import Footer from "../components/site/Footer";
-import WhatsAppFloat from "../components/site/WhatsAppFloat";
 import ServiceCard from "../components/site/ServiceCard";
+import ServiceOrderSummary from "../components/site/ServiceOrderSummary";
+import Seo from "../components/site/Seo";
+import DraftBanner from "../components/site/DraftBanner";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "../components/ui/accordion";
 import { useContent } from "../context/ContentContext";
-import { waLink, serviceWaMessage } from "../lib/whatsapp";
 import { fadeUp, stagger, viewport } from "../lib/motionVariants";
-import Seo from "../components/site/Seo";
-import DraftBanner from "../components/site/DraftBanner";
+
+const PROCESS = [
+  { no: "01", title: "Konsultasi", desc: "Kita diskusikan kebutuhan & tujuan produkmu." },
+  { no: "02", title: "Riset", desc: "Kami pelajari brand dan kompetitormu." },
+  { no: "03", title: "Desain", desc: "Tim mengerjakan konsep terbaik untukmu." },
+  { no: "04", title: "Revisi & Kirim", desc: "Kami sempurnakan lalu kirim file final." },
+];
 
 export default function ServiceDetail() {
   const { slug } = useParams();
@@ -62,7 +68,6 @@ export default function ServiceDetail() {
   const relatedPortfolio = (portfolio || []).filter(
     (p) => (p.related_services || []).includes(slug) || p.category === service.category
   ).slice(0, 3);
-  const waMsg = serviceWaMessage(service.title);
 
   return (
     <div className="bg-[#080D10]">
@@ -84,10 +89,10 @@ export default function ServiceDetail() {
       />
       <DraftBanner show={service.status === "draft"} />
       <Navbar />
-      <main className="pt-20">
+      <main className="pt-20 pb-24 lg:pb-0">
         {/* Hero */}
-        <section className="relative overflow-hidden">
-          <div className="veyora-container pt-16 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <section className="relative overflow-hidden border-b border-[#23262B]">
+          <div className="veyora-container pt-14 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <Link to="/#services" className="flex w-fit items-center gap-2 text-[#A3AAB4] hover:text-white transition-colors font-body text-sm mb-8">
                 <ArrowLeft className="w-4 h-4" /> Semua Layanan
@@ -97,139 +102,117 @@ export default function ServiceDetail() {
                 {service.title}
               </h1>
               <p className="font-body text-[#A3AAB4] text-base md:text-lg leading-relaxed mt-6 max-w-lg">
-                {service.full_description}
+                {service.short_description}
               </p>
-              <div className="flex flex-wrap items-center gap-4 mt-8">
-                <a href={waLink(settings?.whatsapp_number, waMsg)} target="_blank" rel="noreferrer" data-testid="service-hero-cta" className="btn-primary">
-                  <MessageCircle className="w-4 h-4" /> Konsultasi Gratis
-                </a>
-                <div className="flex items-center gap-2 text-[#A3AAB4] font-body text-sm">
+              <div className="flex flex-wrap items-center gap-6 mt-8">
+                <div>
+                  <p className="font-body text-[11px] uppercase tracking-wider text-[#A3AAB4]">Mulai dari</p>
+                  <p className="font-head text-white text-2xl">{service.starting_price}</p>
+                </div>
+                <div className="w-px h-10 bg-[#23262B]" />
+                <div className="flex items-center gap-2 text-[#D9DEE6] font-body text-sm">
                   <Clock className="w-4 h-4" /> {service.estimated_time}
                 </div>
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }}
               className="relative rounded-2xl overflow-hidden border border-[#23262B]">
-              <img src={service.hero_image || service.thumbnail} alt={service.title} className="w-full h-[360px] md:h-[480px] object-cover" />
+              <img src={service.hero_image || service.thumbnail} alt={service.title} className="w-full h-[320px] md:h-[440px] object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#080D10] to-transparent opacity-60" />
             </motion.div>
           </div>
         </section>
 
-        {/* Benefits */}
-        {service.benefits?.length > 0 && (
-          <section className="section-pad border-t border-[#23262B]">
-            <div className="veyora-container">
-              <motion.h2 variants={fadeUp} initial="hidden" whileInView="show" viewport={viewport}
-                className="font-head font-bold text-white text-3xl md:text-4xl tracking-tight mb-12">
-                Kenapa layanan ini penting?
-              </motion.h2>
-              <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport}
-                className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {service.benefits.map((b, i) => (
-                  <motion.div key={i} variants={fadeUp} custom={i} className="surface-card p-6 flex items-start gap-4">
-                    <div className="w-9 h-9 rounded-lg bg-[#080D10] border border-[#23262B] grid place-items-center shrink-0">
-                      <Check className="w-4 h-4 text-[#5C6773]" />
-                    </div>
-                    <p className="font-body text-[#D9DEE6] leading-relaxed">{b}</p>
+        {/* Two-column: content + sticky order summary */}
+        <section className="veyora-container py-16 md:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-12 lg:gap-16 items-start">
+            {/* LEFT */}
+            <div className="space-y-16 min-w-0">
+              {service.full_description && (
+                <div>
+                  <h2 className="font-head font-bold text-white text-2xl md:text-3xl tracking-tight mb-4">Tentang Layanan</h2>
+                  <p className="font-body text-[#A3AAB4] text-base leading-relaxed">{service.full_description}</p>
+                </div>
+              )}
+
+              {service.benefits?.length > 0 && (
+                <div>
+                  <h2 className="font-head font-bold text-white text-2xl md:text-3xl tracking-tight mb-6">Kenapa ini penting?</h2>
+                  <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={viewport} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {service.benefits.map((b, i) => (
+                      <motion.div key={i} variants={fadeUp} custom={i} className="surface-card p-5 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#080D10] border border-[#23262B] grid place-items-center shrink-0">
+                          <Check className="w-4 h-4 text-[#5C6773]" />
+                        </div>
+                        <p className="font-body text-sm text-[#D9DEE6] leading-relaxed">{b}</p>
+                      </motion.div>
+                    ))}
                   </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </section>
-        )}
+                </div>
+              )}
 
-        {/* Related Portfolio */}
-        {relatedPortfolio.length > 0 && (
-          <section className="section-pad border-t border-[#23262B]">
-            <div className="veyora-container">
-              <h2 className="font-head font-bold text-white text-3xl md:text-4xl tracking-tight mb-12">Karya terkait</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {relatedPortfolio.map((p) => (
-                  <Link key={p.id} to="/#portfolio" className="group">
-                    <div className="relative overflow-hidden rounded-xl border border-[#23262B] aspect-[4/5]">
-                      <img src={p.thumbnail} alt={p.project_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#080D10] to-transparent opacity-70" />
-                      <div className="absolute bottom-0 p-5">
-                        <h3 className="font-head text-white text-lg">{p.project_name}</h3>
-                      </div>
+              {/* Process */}
+              <div>
+                <h2 className="font-head font-bold text-white text-2xl md:text-3xl tracking-tight mb-6">Cara kerjanya</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {PROCESS.map((s, i) => (
+                    <div key={i}>
+                      <p className="font-editorial text-4xl text-[#23262B] leading-none">{s.no}</p>
+                      <h3 className="font-head text-white text-base mt-3 mb-1.5">{s.title}</h3>
+                      <p className="font-body text-xs text-[#A3AAB4] leading-relaxed">{s.desc}</p>
                     </div>
-                  </Link>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        )}
 
-        {/* Pricing */}
-        {service.pricing?.length > 0 && (
-          <section className="section-pad border-t border-[#23262B]">
-            <div className="veyora-container">
-              <h2 className="font-head font-bold text-white text-3xl md:text-4xl tracking-tight mb-3">Pilih paketmu</h2>
-              <p className="font-body text-[#A3AAB4] mb-12">Harga transparan, tanpa biaya tersembunyi.</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {service.pricing.map((pkg, i) => (
-                  <div key={i} className={`surface-card p-8 flex flex-col ${i === 1 ? "border-[#5C6773]" : ""}`}>
-                    {i === 1 && <span className="self-start text-[10px] uppercase tracking-widest bg-[#5C6773] text-white rounded-full px-3 py-1 mb-4">Paling Populer</span>}
-                    <p className="font-body text-sm text-[#A3AAB4] uppercase tracking-wider">{pkg.name}</p>
-                    <p className="font-head text-white text-3xl mt-2">{pkg.price}</p>
-                    <ul className="mt-6 space-y-3 flex-1">
-                      {(pkg.features || []).map((f, j) => (
-                        <li key={j} className="flex items-start gap-3 font-body text-sm text-[#A3AAB4]">
-                          <Check className="w-4 h-4 text-[#5C6773] mt-0.5 shrink-0" /> {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <a href={waLink(settings?.whatsapp_number, `${waMsg} Saya tertarik paket ${pkg.name}.`)} target="_blank" rel="noreferrer"
-                      className={`mt-8 ${i === 1 ? "btn-primary" : "btn-secondary"}`}>
-                      Pilih Paket
-                    </a>
+              {/* Related portfolio */}
+              {relatedPortfolio.length > 0 && (
+                <div>
+                  <h2 className="font-head font-bold text-white text-2xl md:text-3xl tracking-tight mb-6">Karya terkait</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {relatedPortfolio.map((p) => (
+                      <Link key={p.id} to={`/portfolio/${p.slug}`} className="group">
+                        <div className="relative overflow-hidden rounded-xl border border-[#23262B] aspect-[4/5]">
+                          <img src={p.thumbnail} alt={p.project_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#080D10] to-transparent opacity-70" />
+                          <div className="absolute bottom-0 p-4">
+                            <h3 className="font-head text-white text-sm">{p.project_name}</h3>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+                </div>
+              )}
 
-        {/* Add-ons */}
-        {service.addons?.length > 0 && (
-          <section className="section-pad border-t border-[#23262B]">
-            <div className="veyora-container">
-              <h2 className="font-head font-bold text-white text-3xl md:text-4xl tracking-tight mb-12">Layanan tambahan</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {service.addons.map((a, i) => (
-                  <div key={i} className="surface-card px-6 py-5 flex items-center justify-between">
-                    <span className="font-body text-[#D9DEE6]">{a.name}</span>
-                    <span className="font-head text-white">{a.price}</span>
-                  </div>
-                ))}
-              </div>
+              {/* FAQ */}
+              {service.faqs?.length > 0 && (
+                <div>
+                  <h2 className="font-head font-bold text-white text-2xl md:text-3xl tracking-tight mb-6">
+                    Pertanyaan seputar {service.title}
+                  </h2>
+                  <Accordion type="single" collapsible>
+                    {service.faqs.map((f, i) => (
+                      <AccordionItem key={i} value={`f${i}`} className="border-b border-[#23262B]">
+                        <AccordionTrigger className="font-head text-white text-left text-base hover:no-underline py-5">
+                          {f.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="font-body text-[#A3AAB4] text-sm leading-relaxed pb-5">
+                          {f.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              )}
             </div>
-          </section>
-        )}
 
-        {/* FAQ */}
-        {service.faqs?.length > 0 && (
-          <section className="section-pad border-t border-[#23262B]">
-            <div className="veyora-container max-w-3xl">
-              <h2 className="font-head font-bold text-white text-3xl md:text-4xl tracking-tight mb-10">
-                Pertanyaan seputar {service.title}
-              </h2>
-              <Accordion type="single" collapsible>
-                {service.faqs.map((f, i) => (
-                  <AccordionItem key={i} value={`f${i}`} className="border-b border-[#23262B]">
-                    <AccordionTrigger className="font-head text-white text-left text-base md:text-lg hover:no-underline py-6">
-                      {f.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="font-body text-[#A3AAB4] text-sm md:text-base leading-relaxed pb-6">
-                      {f.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+            {/* RIGHT — sticky order summary */}
+            <div className="lg:min-w-0">
+              <ServiceOrderSummary service={service} whatsappNumber={settings?.whatsapp_number} />
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* Related Services */}
         {relatedServices.length > 0 && (
@@ -243,24 +226,8 @@ export default function ServiceDetail() {
             </div>
           </section>
         )}
-
-        {/* CTA */}
-        <section className="section-pad border-t border-[#23262B]">
-          <div className="veyora-container text-center">
-            <h2 className="font-head font-bold text-white text-3xl md:text-5xl tracking-tight mb-6">
-              Tertarik dengan {service.title}?
-            </h2>
-            <p className="font-body text-[#A3AAB4] max-w-lg mx-auto mb-8">
-              Yuk ngobrol dulu. Konsultasi gratis dan tanpa komitmen.
-            </p>
-            <a href={waLink(settings?.whatsapp_number, waMsg)} target="_blank" rel="noreferrer" className="btn-primary">
-              <MessageCircle className="w-4 h-4" /> Konsultasi Gratis <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
-        </section>
       </main>
       <Footer />
-      <WhatsAppFloat />
     </div>
   );
 }

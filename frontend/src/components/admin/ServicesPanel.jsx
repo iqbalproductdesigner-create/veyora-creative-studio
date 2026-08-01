@@ -138,8 +138,8 @@ export default function ServicesPanel() {
           <Area label="Deskripsi Lengkap" value={editing.full_description} onChange={(v) => set("full_description", v)} />
           <StringList label="Manfaat" items={editing.benefits} onChange={(v) => set("benefits", v)} placeholder="Manfaat" />
           <ObjectList label="Paket Harga" items={editing.pricing} onChange={(v) => set("pricing", v)}
-            fields={[{ key: "name", label: "Nama Paket" }, { key: "price", label: "Harga" }, { key: "features", label: "Fitur", type: "list" }]}
-            template={{ name: "", price: "", features: [] }} />
+            fields={[{ key: "name", label: "Nama Paket" }, { key: "price", label: "Harga" }, { key: "description", label: "Deskripsi Singkat", type: "area" }, { key: "features", label: "Fitur", type: "list" }]}
+            template={{ name: "", price: "", description: "", features: [] }} />
           <ObjectList label="Layanan Tambahan" items={editing.addons} onChange={(v) => set("addons", v)}
             fields={[{ key: "name", label: "Nama" }, { key: "price", label: "Harga" }]}
             template={{ name: "", price: "" }} />

@@ -67,9 +67,9 @@ def _service(title, slug, category, thumb, hero, short, full, price, time, benef
 
 
 _PRICING_STD = [
-    {"name": "Starter", "price": "Rp75.000", "features": ["1 konsep desain", "2x revisi", "File siap cetak (PDF/PNG)", "Pengerjaan 2-3 hari"]},
-    {"name": "Standard", "price": "Rp150.000", "features": ["3 konsep desain", "5x revisi", "File cetak & digital", "Sumber file editable", "Pengerjaan 3-5 hari"]},
-    {"name": "Premium", "price": "Rp300.000", "features": ["Unlimited konsep", "Revisi sepuasnya", "Semua format file", "Panduan brand ringkas", "Prioritas pengerjaan"]},
+    {"name": "Starter", "price": "Rp75.000", "description": "Pas untuk yang baru mulai dan butuh satu desain solid.", "features": ["1 konsep desain", "2x revisi", "File siap cetak (PDF/PNG)", "Pengerjaan 2-3 hari"]},
+    {"name": "Standard", "price": "Rp150.000", "description": "Pilihan paling populer dengan lebih banyak opsi & revisi.", "features": ["3 konsep desain", "5x revisi", "File cetak & digital", "Sumber file editable", "Pengerjaan 3-5 hari"]},
+    {"name": "Premium", "price": "Rp300.000", "description": "Paket lengkap untuk hasil maksimal tanpa batas revisi.", "features": ["Unlimited konsep", "Revisi sepuasnya", "Semua format file", "Panduan brand ringkas", "Prioritas pengerjaan"]},
 ]
 
 _ADDONS = [
