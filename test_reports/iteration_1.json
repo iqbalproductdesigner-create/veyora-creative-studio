@@ -1,0 +1,35 @@
+{
+  "summary": "First full test iteration for Veyora Creative Studio. Backend: created pytest suite /app/backend/tests/backend_test.py (21 tests covering public GETs, auth, admin CRUD). Initial run exposed 3 x 500 errors on POST /api/admin/{services,portfolio,faqs} due to Motor mutating the insert doc with a BSON ObjectId '_id' which FastAPI could not serialize. Fixed inline by popping '_id' before returning. All 21 backend tests now pass. Frontend: Home renders (8 services, 6 portfolio, 6 FAQs, WhatsApp CTAs point to wa.me/6285177881357). Portfolio drawer opens without route change and closes via close button. Service detail /services/packaging-design renders. Admin: /admin redirects to /admin/login when unauthenticated, login with admin@veyora.studio / veyora2025 succeeds, all 5 dashboard tabs present, editing homepage headline shows 'Homepage tersimpan' toast and persists via PUT /api/admin/homepage, creating a FAQ from UI shows 'FAQ tersimpan' and is visible in GET /api/faqs, logout returns to /admin/login.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Service detail (/services/:slug)", "issues": ["Back link 'Semua Layanan' visually collides with the category label 'PACKAGING' — missing horizontal spacing/margin between the two."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Add spacing between back link and category badge on ServiceDetail hero (minor CSS)."
+  ],
+  "critical_code_review_comments": [
+    "server.py: POST /admin/{services,portfolio,faqs} previously returned the mutated insert doc containing bson ObjectId '_id' → 500. Fixed by doc.pop('_id', None). Consider a generic serializer helper to avoid recurrence.",
+    "PUT /admin/services|portfolio|faqs use upsert=True — if a client sends an unknown id in the URL, a new document is silently created rather than returning 404. Consider matched_count check + 404.",
+    "Admin write endpoints have no role check — any valid token can edit everything. Fine for single-admin design but worth documenting.",
+    "CORS: allow_origins defaults to '*' with allow_credentials=True, which browsers reject. Preview works because REACT_APP_BACKEND_URL matches origin, but set explicit CORS_ORIGINS for prod."
+  ],
+  "updated_files": [
+    "/app/backend/server.py (added doc.pop('_id', None) after insert_one in create_service, create_portfolio, create_faq)",
+    "/app/backend/tests/backend_test.py (new pytest suite)"
+  ],
+  "success_rate": {"backend": "100% (21/21)", "frontend": "100% of covered flows"},
+  "test_credentials": "admin@veyora.studio / veyora2025 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None permanent. Test-created TEST_* docs were cleaned up.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "backend_test.py runs with default pytest.ini (-n 2 --dist loadscope) but public list-count tests can be flaky under parallel with admin create tests. Use `pytest -n 0` for deterministic runs, or add TEST_ prefix filtering to public-count assertions. Bug fixed in this iteration was ObjectId serialization on 3 admin POSTs.",
+  "rca of the issue": "Motor's AsyncIOMotorCollection.insert_one() mutates the passed dict, adding a bson.ObjectId as '_id'. Handlers create_service/create_portfolio/create_faq returned that same dict. FastAPI's jsonable_encoder cannot serialize ObjectId (raises TypeError('ObjectId object is not iterable') and TypeError('vars() argument must have __dict__ attribute')), resulting in 500. Fix: after insert_one, doc.pop('_id', None) before return. Alternative: build the response from the Pydantic model instead of the insert dict."
+}
