@@ -63,6 +63,15 @@ export default function PortfolioDrawer({ item, onClose }) {
                 {item.project_name}
               </h2>
 
+              <a
+                href={`/portfolio/${item.slug}`}
+                data-testid="portfolio-drawer-full-case"
+                className="btn-secondary mt-5 w-full"
+              >
+                Lihat Studi Kasus Lengkap
+                <ArrowRight className="w-4 h-4" />
+              </a>
+
               {/* Gallery */}
               <div className="mt-8 space-y-4">
                 {(item.gallery || []).map((g, i) => (

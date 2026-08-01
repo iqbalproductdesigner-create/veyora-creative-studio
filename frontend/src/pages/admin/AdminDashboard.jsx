@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Image, HelpCircle, Settings, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Briefcase, Image, HelpCircle, Settings, LogOut, ExternalLink, Tags } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import HomepagePanel from "../../components/admin/HomepagePanel";
 import ServicesPanel from "../../components/admin/ServicesPanel";
 import PortfolioPanel from "../../components/admin/PortfolioPanel";
+import CategoriesPanel from "../../components/admin/CategoriesPanel";
 import FaqPanel from "../../components/admin/FaqPanel";
 import SettingsPanel from "../../components/admin/SettingsPanel";
 
@@ -12,6 +13,7 @@ const TABS = [
   { id: "homepage", label: "Homepage", icon: LayoutDashboard, Comp: HomepagePanel },
   { id: "services", label: "Layanan", icon: Briefcase, Comp: ServicesPanel },
   { id: "portfolio", label: "Portfolio", icon: Image, Comp: PortfolioPanel },
+  { id: "categories", label: "Kategori", icon: Tags, Comp: CategoriesPanel },
   { id: "faq", label: "FAQ", icon: HelpCircle, Comp: FaqPanel },
   { id: "settings", label: "Pengaturan", icon: Settings, Comp: SettingsPanel },
 ];

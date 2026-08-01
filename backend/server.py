@@ -19,7 +19,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
-from seed_data import DEFAULT_HOMEPAGE, DEFAULT_SETTINGS, DEFAULT_SERVICES, DEFAULT_PORTFOLIO, DEFAULT_FAQS
+from seed_data import DEFAULT_HOMEPAGE, DEFAULT_SETTINGS, DEFAULT_SERVICES, DEFAULT_PORTFOLIO, DEFAULT_FAQS, DEFAULT_CATEGORIES
 from storage import init_storage, put_object, get_object, APP_NAME, MIME_TYPES
 
 # ------------------------------------------------------------------ #
@@ -147,6 +147,14 @@ class FaqModel(BaseModel):
     order: int = 0
 
 
+class CategoryModel(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    slug: str = ""
+    visible: bool = True
+    order: int = 0
+
+
 class HomepageModel(BaseModel):
     headline: str
     description: str
@@ -236,6 +244,57 @@ async def get_portfolio_item(slug: str):
 async def list_faqs():
     docs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(200)
     return docs
+
+
+@api_router.get("/categories")
+async def list_categories():
+    docs = await db.categories.find({"visible": True}, {"_id": 0}).sort("order", 1).to_list(200)
+    return docs
+
+
+# ------------------------------------------------------------------ #
+# SEO: sitemap.xml & robots.txt (served under /api; referenced by /robots.txt)
+# ------------------------------------------------------------------ #
+def _base_url():
+    return os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+
+
+@api_router.get("/sitemap.xml")
+async def sitemap():
+    base = _base_url()
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    urls = [(f"{base}/", "1.0", "weekly")]
+    services = await db.services.find({"status": {"$ne": "draft"}}, {"_id": 0, "slug": 1}).to_list(500)
+    portfolio = await db.portfolio.find({"status": {"$ne": "draft"}}, {"_id": 0, "slug": 1}).to_list(500)
+    for s in services:
+        urls.append((f"{base}/services/{s['slug']}", "0.8", "monthly"))
+    for p in portfolio:
+        if p.get("slug"):
+            urls.append((f"{base}/portfolio/{p['slug']}", "0.7", "monthly"))
+    items = "".join(
+        f"<url><loc>{loc}</loc><lastmod>{now}</lastmod>"
+        f"<changefreq>{cf}</changefreq><priority>{pr}</priority></url>"
+        for loc, pr, cf in urls
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f"{items}</urlset>"
+    )
+    return Response(content=xml, media_type="application/xml")
+
+
+@api_router.get("/robots.txt")
+async def robots_txt():
+    base = _base_url()
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin\n"
+        "Disallow: /admin/login\n\n"
+        f"Sitemap: {base}/api/sitemap.xml\n"
+    )
+    return Response(content=content, media_type="text/plain")
 
 
 # ------------------------------------------------------------------ #
@@ -398,6 +457,40 @@ async def delete_faq(fid: str, current=Depends(get_current_user)):
     return {"ok": True}
 
 
+# Category CRUD
+@api_router.get("/admin/categories")
+async def admin_list_categories(current=Depends(get_current_user)):
+    return await db.categories.find({}, {"_id": 0}).sort("order", 1).to_list(200)
+
+
+@api_router.post("/admin/categories")
+async def create_category(data: CategoryModel, current=Depends(get_current_user)):
+    doc = data.model_dump()
+    doc["slug"] = slugify(doc.get("slug") or doc["name"])
+    await db.categories.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.put("/admin/categories/{cid}")
+async def update_category(cid: str, data: CategoryModel, current=Depends(get_current_user)):
+    existing = await db.categories.find_one({"id": cid})
+    doc = data.model_dump()
+    doc["id"] = cid
+    doc["slug"] = slugify(doc.get("slug") or doc["name"])
+    await db.categories.update_one({"id": cid}, {"$set": doc}, upsert=True)
+    # Cascade rename to portfolio items using the old category name
+    if existing and existing.get("name") and existing["name"] != doc["name"]:
+        await db.portfolio.update_many({"category": existing["name"]}, {"$set": {"category": doc["name"]}})
+    return doc
+
+
+@api_router.delete("/admin/categories/{cid}")
+async def delete_category(cid: str, current=Depends(get_current_user)):
+    await db.categories.delete_one({"id": cid})
+    return {"ok": True}
+
+
 # Reorder (drag & drop) — body: {"ids": [ordered ids]}
 class ReorderInput(BaseModel):
     ids: List[str]
@@ -422,6 +515,11 @@ async def reorder_portfolio(data: ReorderInput, current=Depends(get_current_user
 @api_router.put("/admin/reorder/faqs")
 async def reorder_faqs(data: ReorderInput, current=Depends(get_current_user)):
     return await _reorder(db.faqs, data.ids)
+
+
+@api_router.put("/admin/reorder/categories")
+async def reorder_categories(data: ReorderInput, current=Depends(get_current_user)):
+    return await _reorder(db.categories, data.ids)
 
 
 # ------------------------------------------------------------------ #
@@ -456,6 +554,8 @@ async def seed_content():
         await db.portfolio.insert_many([dict(p) for p in DEFAULT_PORTFOLIO])
     if await db.faqs.count_documents({}) == 0:
         await db.faqs.insert_many([dict(f) for f in DEFAULT_FAQS])
+    if await db.categories.count_documents({}) == 0:
+        await db.categories.insert_many([dict(c) for c in DEFAULT_CATEGORIES])
     # Backfill fields added after initial seed
     await db.services.update_many({"status": {"$exists": False}}, {"$set": {"status": "published", "og_image": ""}})
     await db.portfolio.update_many({"status": {"$exists": False}}, {"$set": {"status": "published", "og_image": ""}})

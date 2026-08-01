@@ -201,3 +201,14 @@ DEFAULT_FAQS = [
     {"id": str(uuid.uuid4()), "question": "Apakah Veyora bisa membantu foto produk untuk marketplace?", "answer": "Bisa. Kami menyediakan layanan editing foto produk agar tampak bersih, tajam, dan konsisten untuk kebutuhan marketplace maupun sosial media.", "category": "Layanan", "order": 4},
     {"id": str(uuid.uuid4()), "question": "Berapa lama waktu pengerjaan rata-rata?", "answer": "Umumnya 2-5 hari kerja tergantung jenis layanan dan paket. Jika Anda membutuhkan lebih cepat, tersedia opsi Fast Track.", "category": "Proses", "order": 5},
 ]
+
+
+def _cat(name, order):
+    return {"id": str(uuid.uuid4()), "name": name,
+            "slug": name.lower().replace(" ", "-"), "visible": True, "order": order}
+
+
+DEFAULT_CATEGORIES = [
+    _cat("Packaging", 0), _cat("Logo", 1), _cat("Sticker", 2),
+    _cat("Landing Page", 3), _cat("Marketplace", 4), _cat("Motion", 5),
+]

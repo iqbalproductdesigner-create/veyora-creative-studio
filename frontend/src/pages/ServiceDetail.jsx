@@ -71,6 +71,16 @@ export default function ServiceDetail() {
         description={service.seo_description || service.short_description}
         image={service.og_image || service.hero_image || service.thumbnail}
         url={typeof window !== "undefined" ? window.location.href : ""}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: service.title,
+          description: service.short_description,
+          serviceType: service.category,
+          provider: { "@type": "Organization", name: settings?.business_name || "Veyora Creative Studio" },
+          areaServed: "ID",
+          image: service.og_image || service.hero_image || service.thumbnail,
+        }}
       />
       <DraftBanner show={service.status === "draft"} />
       <Navbar />

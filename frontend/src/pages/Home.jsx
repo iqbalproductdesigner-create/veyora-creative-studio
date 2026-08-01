@@ -44,13 +44,31 @@ export default function Home() {
     );
   }
 
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const socials = settings?.social_links || {};
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: settings?.business_name || "Veyora Creative Studio",
+    url: origin,
+    description: settings?.default_seo_description,
+    logo: homepage?.hero_image,
+    sameAs: Object.values(socials).filter(Boolean),
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      telephone: `+${(settings?.whatsapp_number || "").replace(/[^0-9]/g, "")}`,
+    },
+  };
+
   return (
     <div className="bg-[#080D10]">
       <Seo
         title={settings?.default_seo_title}
         description={settings?.default_seo_description}
         image={homepage?.hero_image}
-        url={typeof window !== "undefined" ? window.location.origin : ""}
+        url={origin}
+        jsonLd={orgJsonLd}
       />
       <Navbar />
       <main>

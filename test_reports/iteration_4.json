@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 4 testing (dynamic sitemap/robots, portfolio Quick View drawer, SEO meta/JSON-LD, Category CMS with cascade rename + visibility + reorder, dynamic homepage portfolio filter). Backend: added /app/backend/tests/test_iteration4.py — 9/9 new tests pass; full regression across iter1+2+3+4 = 47/47 passed in 44s. Verified: (a) GET /api/sitemap.xml returns application/xml with 1 homepage <loc> + 8 published services + 6 published portfolio (15 <loc> total); draft service is excluded from XML. (b) GET /api/robots.txt returns text/plain with 'Disallow: /admin' and 'Sitemap: <base>/api/sitemap.xml'. (c) GET /api/categories returns 6 default categories (Packaging, Logo, Sticker, Landing Page, Marketplace, Motion) sorted by order, only visible=true. (d) Admin category CRUD: unauthenticated GET/POST/PUT/DELETE/reorder all → 401; rename cascade — created TestCat_IT4, created a draft portfolio in it, PUT rename → TestCatRenamed_IT4, GET /api/portfolio/{slug} confirmed category updated; visibility toggle removes from public list but keeps in admin; reorder categories with reversed ids returns {ok:true} and public GET reflects new order. All cleanup performed (temp cat & portfolio deleted, Motion visibility restored, category order restored). Frontend (Playwright on preview URL): homepage / — <link rel='canonical'>, og:title, og:image and JSON-LD @type Organization all present. /services/packaging-design — document.title = 'Packaging Design — Veyora Creative Studio', canonical link present, JSON-LD @type Service present with provider Organization. Homepage /#portfolio filters generated from /api/categories: ['Semua','Packaging','Logo','Sticker','Landing Page','Marketplace','Motion']. Clicking a portfolio card opens the side drawer [data-testid=portfolio-drawer] (not a navigation); 'Lihat Studi Kasus Lengkap' [data-testid=portfolio-drawer-full-case] has href='/portfolio/kopi-nusantara'; close button dismisses the drawer. Filtering by 'Logo' narrows to 1 matching item. Admin login OK → 'Kategori' tab [data-testid=admin-tab-categories] opens [data-testid=panel-categories]; added a new visible category (category-add → category-name → category-save) that appeared on homepage filter list after reload ('TEST_UICat_IT4' in filters). Visibility toggle button [data-testid=category-toggle-<slug>] present per row. Portfolio editor Kategori is <select data-testid='portfolio-category'> populated from managed categories (Packaging, Logo, Sticker, Landing Page, Marketplace, Motion). All temp UI-created data cleaned up (DELETE 200).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration4.py",
+    "/app/backend/tests/test_iteration3.py",
+    "/app/backend/tests/test_iteration2.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/iter4_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py update_category slug regenerates from name every PUT — a manual custom slug is preserved only if passed explicitly; documented behavior but worth noting for future admin flows.",
+    "server.py delete_category does NOT cascade to portfolio items still using that category — those items are left with an orphaned category string (silent inconsistency). Consider either (a) reject delete if portfolio references exist, (b) reassign to a default, or (c) surface warning in UI. Current UI confirmation just warns 'Portfolio dengan kategori ini tidak akan terhapus' which is accurate but the orphaned category won't show in dynamic filters.",
+    "server.py sitemap uses PUBLIC_BASE_URL from env but has no fallback — if unset, <loc> becomes '/', '/services/…' (relative). Fine currently (env set), but could add fallback to request.base_url for robustness.",
+    "Carried from prior iterations: PUT /admin/{services,portfolio,faqs,categories}/{id} still use upsert=True — unknown id creates a new doc instead of returning 404.",
+    "Carried from iter2: upload endpoint validates only extension, not file bytes/magic-number.",
+    "Carried from iter3: ImageUpload preview may still emit 'empty string was passed to src' console warning when value is empty."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration4.py (new)"
+  ],
+  "success_rate": { "backend": "100% (47/47 regression)", "frontend": "100% of covered flows" },
+  "test_credentials": "admin@veyora.studio / veyora2025",
+  "seed_data_creation": "None persisted. Temp: TestCat_IT4/TestCatRenamed_IT4 category + one draft portfolio (both deleted); one 'TEST_DraftService' service (deleted); one UI-created 'TEST_UICat_IT4' category (deleted). Motion visibility toggle & category reorder both restored.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend suites: backend_test.py (iter1, 21) + test_iteration2.py (8) + test_iteration3.py (9) + test_iteration4.py (9) = 47. Run with `pytest /app/backend/tests -p no:cacheprovider`. Sitemap/robots are at /api/sitemap.xml and /api/robots.txt (the static /robots.txt in /app/frontend/public references the /api one). Category rename cascades to db.portfolio.category (verified). Category delete does NOT cascade — orphan portfolio items keep the old category string. Categories: default order is Packaging(0), Logo(1), Sticker(2), Landing Page(3), Marketplace(4), Motion(5); if you reorder in tests always restore. Admin sidebar order: Homepage, Layanan, Portfolio, Kategori, FAQ, Pengaturan. PortfolioDrawer opens via clicking a homepage card (motion.button with onClick=setSelected) — it's NOT a <Link> anymore in iter4; the drawer contains an <a data-testid=portfolio-drawer-full-case href='/portfolio/{slug}'> for the dedicated case-study page."
+}

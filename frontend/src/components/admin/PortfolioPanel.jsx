@@ -16,6 +16,7 @@ const empty = {
 export default function PortfolioPanel() {
   const [items, setItems] = useState([]);
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -23,6 +24,7 @@ export default function PortfolioPanel() {
   useEffect(() => {
     load();
     api.get("/admin/services").then((r) => setServices(r.data)).catch(() => {});
+    api.get("/admin/categories").then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   const set = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
@@ -108,7 +110,22 @@ export default function PortfolioPanel() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <Field label="Nama Proyek" value={editing.project_name} onChange={(v) => set("project_name", v)} testid="portfolio-name" />
-            <Field label="Kategori" value={editing.category} onChange={(v) => set("category", v)} />
+            <label className="block">
+              <span className="font-body text-sm text-[#A3AAB4] mb-2 block">Kategori</span>
+              <select
+                data-testid="portfolio-category"
+                value={editing.category}
+                onChange={(e) => set("category", e.target.value)}
+                className="w-full bg-[#080D10] border border-[#23262B] rounded-xl px-4 py-2.5 text-white font-body text-sm focus:border-[#5C6773] outline-none"
+              >
+                {!categories.find((c) => c.name === editing.category) && editing.category && (
+                  <option value={editing.category}>{editing.category}</option>
+                )}
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}{!c.visible ? " (tersembunyi)" : ""}</option>
+                ))}
+              </select>
+            </label>
             <label className="block">
               <span className="font-body text-sm text-[#A3AAB4] mb-2 block">Status</span>
               <select

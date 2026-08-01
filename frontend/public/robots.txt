@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/login
+
+Sitemap: https://design-studio-2154.preview.emergentagent.com/api/sitemap.xml

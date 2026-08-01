@@ -10,6 +10,7 @@ export function ContentProvider({ children }) {
     services: [],
     portfolio: [],
     faqs: [],
+    categories: [],
     loading: true,
   });
 
@@ -20,14 +21,16 @@ export function ContentProvider({ children }) {
       api.get("/services"),
       api.get("/portfolio"),
       api.get("/faqs"),
+      api.get("/categories"),
     ])
-      .then(([hp, st, sv, pf, fq]) => {
+      .then(([hp, st, sv, pf, fq, cat]) => {
         setData({
           homepage: hp.data,
           settings: st.data,
           services: sv.data,
           portfolio: pf.data,
           faqs: fq.data,
+          categories: cat.data,
           loading: false,
         });
       })
