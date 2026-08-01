@@ -68,10 +68,10 @@ export default function ServiceDetail() {
         <section className="relative overflow-hidden">
           <div className="veyora-container pt-16 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-              <Link to="/#services" className="inline-flex items-center gap-2 text-[#A3AAB4] hover:text-white transition-colors font-body text-sm mb-8">
+              <Link to="/#services" className="flex w-fit items-center gap-2 text-[#A3AAB4] hover:text-white transition-colors font-body text-sm mb-8">
                 <ArrowLeft className="w-4 h-4" /> Semua Layanan
               </Link>
-              <span className="eyebrow">{service.category}</span>
+              <span className="eyebrow block">{service.category}</span>
               <h1 className="font-head font-bold text-white text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.05] mt-4">
                 {service.title}
               </h1>
