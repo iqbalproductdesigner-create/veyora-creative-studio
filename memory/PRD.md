@@ -42,6 +42,13 @@ Homepage flow: Hero → Statistics → Marquee → Why Choose → Services → P
 Add to `/app/frontend/.env` (any subset) then restart frontend:
 `REACT_APP_GTM_ID=GTM-XXXXXXX` · `REACT_APP_GA_ID=G-XXXXXXXXXX` · `REACT_APP_CLARITY_ID=xxxxxxxxxx`
 
+### Iteration 4 (enhancements) — tested 47/47 backend
+- **Dynamic SEO infra**: `GET /api/sitemap.xml` (home + all published services & portfolio, drafts excluded) and `GET /api/robots.txt` (Disallow /admin + Sitemap directive). Static `/app/frontend/public/robots.txt` references the dynamic sitemap (update its domain on custom-domain deploy).
+- **Canonical + JSON-LD**: `Seo.jsx` now emits `<link rel=canonical>` + JSON-LD. Home = Organization schema (sameAs socials, WhatsApp contactPoint); Service Detail = Service schema.
+- **Quick View Drawer** restored on homepage portfolio cards (fast browsing) with a "Lihat Studi Kasus Lengkap" button → dedicated `/portfolio/:slug` SEO page. Pages discoverable via sitemap.
+- **Category Management CMS** (`CategoriesPanel`, `admin-tab-categories`): create / rename (cascades to portfolio.category) / show-hide / drag-reorder. Public `GET /api/categories` (visible only) drives the homepage portfolio filter automatically. Portfolio editor category is now a dropdown.
+- Note: deleting a category does NOT cascade — orphaned portfolio items keep their category string and remain visible under the "Semua" filter.
+
 ## Backlog / Next
 - P1: Image upload in CMS (currently URL fields). Would need object storage integration.
 - P1: Per-page dynamic SEO/OG injection (react-helmet).
