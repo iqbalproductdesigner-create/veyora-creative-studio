@@ -13,12 +13,16 @@ export default function ServiceCard({ service, index = 0 }) {
         className="surface-card overflow-hidden flex flex-col h-full hover:border-[#3a3e45] hover:-translate-y-1 transition-all duration-300"
       >
         <div className="relative overflow-hidden aspect-[16/10]">
-          <img
-            src={service.thumbnail}
-            alt={service.title}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          {service.thumbnail ? (
+            <img
+              src={service.thumbnail}
+              alt={service.title}
+              loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#080D10]" />
+          )}
           <span className="absolute top-4 left-4 text-[10px] uppercase tracking-widest font-body text-white bg-[#080D10]/80 border border-[#23262B] rounded-full px-3 py-1">
             {service.category}
           </span>

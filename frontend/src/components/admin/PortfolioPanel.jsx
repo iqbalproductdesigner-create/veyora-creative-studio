@@ -69,7 +69,11 @@ export default function PortfolioPanel() {
             onReorder={handleReorder}
             renderItem={(p) => (
               <div className="surface-card overflow-hidden flex">
-                <img src={p.thumbnail} alt={p.project_name} className="w-24 h-24 object-cover" />
+                {p.thumbnail ? (
+                  <img src={p.thumbnail} alt={p.project_name} className="w-24 h-24 object-cover" />
+                ) : (
+                  <div className="w-24 h-24 bg-[#080D10] shrink-0" />
+                )}
                 <div className="flex-1 p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">

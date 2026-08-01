@@ -32,6 +32,16 @@ Homepage flow: Hero → Statistics → Marquee → Why Choose → Services → P
 - **Dynamic WhatsApp message** per service (`serviceWaMessage`) — pre-filled Bahasa Indonesia template with service name.
 - **Auto slug** from title (new services), **Draft/Published** status for Services & Portfolio (drafts hidden from public, visible in admin via GET /api/admin/{services,portfolio}).
 
+### Iteration 3 (enhancements) — tested 38/38 backend
+- **Draft Preview**: admin "Eye" preview buttons open `/services/:slug` / `/portfolio/:slug` (detail endpoints return items regardless of status); draft pages show a `<DraftBanner>` "Mode Pratinjau". Drafts stay hidden from public listings.
+- **SEO Portfolio pages**: portfolio now has unique auto `slug`; dedicated route `/portfolio/:slug` (`PortfolioDetail.jsx`) with full per-page SEO/OG. Homepage portfolio cards are crawlable `<Link>`s to these pages. `GET /api/portfolio/{slug}` added.
+- **Drag & drop ordering** (Services, Portfolio, FAQ) via @dnd-kit (`SortableList.jsx`); no manual order numbers. Persists to `PUT /api/admin/reorder/{services|portfolio|faqs}` (body `{ids:[...]}`).
+- **Analytics readiness** (`Analytics.jsx`, env-gated): set any of `REACT_APP_GTM_ID`, `REACT_APP_GA_ID`, `REACT_APP_CLARITY_ID` in `frontend/.env` to auto-inject GA4/GTM/Clarity. `trackWhatsApp(context)` pushes a `whatsapp_click` event; WA CTAs carry `data-analytics="whatsapp"`.
+
+## Enabling Analytics (later)
+Add to `/app/frontend/.env` (any subset) then restart frontend:
+`REACT_APP_GTM_ID=GTM-XXXXXXX` · `REACT_APP_GA_ID=G-XXXXXXXXXX` · `REACT_APP_CLARITY_ID=xxxxxxxxxx`
+
 ## Backlog / Next
 - P1: Image upload in CMS (currently URL fields). Would need object storage integration.
 - P1: Per-page dynamic SEO/OG injection (react-helmet).
