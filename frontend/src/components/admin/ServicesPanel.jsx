@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, X, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Field, Area, StringList, ObjectList } from "./fields";
 import { ImageUpload } from "./ImageUpload";
+import SortableList from "./SortableList";
 
 const empty = {
   title: "", slug: "", category: "Packaging", thumbnail: "", hero_image: "",
@@ -25,6 +26,11 @@ export default function ServicesPanel() {
   const isNew = editing && !items.find((x) => x.id === editing.id);
   const set = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
   const setTitle = (v) => setEditing((e) => ({ ...e, title: v, slug: isNew ? slugify(v) : e.slug }));
+
+  const handleReorder = (ids) => {
+    setItems((prev) => ids.map((id) => prev.find((x) => x.id === id)));
+    api.put("/admin/reorder/services", { ids }).then(() => toast.success("Urutan diperbarui")).catch(() => toast.error("Gagal mengurutkan"));
+  };
 
   const save = async () => {
     setSaving(true);
@@ -58,9 +64,12 @@ export default function ServicesPanel() {
           <button onClick={() => setEditing({ ...empty, order: items.length })} data-testid="service-add" className="btn-primary mb-6">
             <Plus className="w-4 h-4" /> Tambah Layanan
           </button>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {items.map((s) => (
-              <div key={s.id} className="surface-card overflow-hidden flex">
+          <p className="font-body text-xs text-[#A3AAB4] mb-3">Seret kartu untuk mengubah urutan tampil di website.</p>
+          <SortableList
+            items={items}
+            onReorder={handleReorder}
+            renderItem={(s) => (
+              <div className="surface-card overflow-hidden flex">
                 <img src={s.thumbnail} alt={s.title} className="w-24 h-24 object-cover" />
                 <div className="flex-1 p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -73,6 +82,9 @@ export default function ServicesPanel() {
                     <p className="font-body text-xs text-[#A3AAB4] mt-1">{s.category} · {s.starting_price}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
+                    <a href={`/services/${s.slug}${s.status === "draft" ? "?preview=1" : ""}`} target="_blank" rel="noreferrer" title="Pratinjau" data-testid={`service-preview-${s.slug}`} className="w-9 h-9 rounded-lg border border-[#23262B] grid place-items-center text-[#A3AAB4] hover:text-white transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </a>
                     <button onClick={() => setEditing(s)} className="w-9 h-9 rounded-lg border border-[#23262B] grid place-items-center text-[#A3AAB4] hover:text-white transition-colors">
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -82,8 +94,8 @@ export default function ServicesPanel() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          />
         </>
       ) : (
         <div className="max-w-3xl space-y-5">
@@ -95,9 +107,8 @@ export default function ServicesPanel() {
             <Field label="Judul" value={editing.title} onChange={setTitle} testid="service-title" />
             <Field label="Slug" value={editing.slug} onChange={(v) => set("slug", v)} placeholder="otomatis dari judul" />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <Field label="Kategori" value={editing.category} onChange={(v) => set("category", v)} />
-            <Field label="Urutan" type="number" value={editing.order} onChange={(v) => set("order", parseInt(v) || 0)} />
             <label className="block">
               <span className="font-body text-sm text-[#A3AAB4] mb-2 block">Status</span>
               <select

@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 3 testing (draft preview, SEO portfolio pages, drag-and-drop reorder, analytics readiness). Backend: added /app/backend/tests/test_iteration3.py — 9/9 new tests pass; full regression 38/38 across iter1+iter2+iter3. Verified: (a) all /api/portfolio items have non-empty unique slugs; GET /api/portfolio/{slug} returns the item; unknown slug → 404. (b) PUT /api/admin/reorder/{faqs,services,portfolio} with {ids:[reversed]} returns {ok:true}, subsequent public GETs reflect new order (first item changed). Confirmed no mis-routing: reorder/services returns 200, not 422 — kept order restored after each test. Unauthenticated reorder → 401. (c) Draft service (status='draft') hidden from GET /api/services but retrievable via GET /api/services/{slug} and present in /api/admin/services; same for portfolio; portfolio auto-generates a slug even for drafts. Frontend (Playwright on preview URL): /portfolio/kopi-nusantara → document.title 'Kopi Nusantara — Portfolio Veyora', og:image meta present (unsplash), page shows project name + Tantangan + Solusi + 'Yang Dikerjakan' (deliverables) + 6 related /services links + portfolio-detail-cta whose wa.me text (URL-decoded) contains the project name 'Kopi Nusantara'. Homepage /#portfolio renders 6 [data-testid=portfolio-item-*] cards; each is an <a href='/portfolio/{slug}'> (real crawlable link, not a drawer). Admin login OK; created draft service via UI (Status=Draft), a preview <a data-testid=service-preview-{slug}> was rendered with href '/services/{slug}?preview=1'. Visiting that URL shows [data-testid=draft-banner] ('Mode Pratinjau'); the draft does NOT appear on public homepage. FAQ tab shows 6 GripVertical drag handles (svg.lucide-grip-vertical); Portfolio tab shows 6 GripVertical handles; NO 'Urutan' label in FAQ, Services, or Portfolio editors. Portfolio editor has portfolio-status select, portfolio-thumb-upload, gallery upload, and related-services multi-select — no order field. Cleaned up test service via DELETE (200).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "ImageUpload preview", "issues": ["Console warning: 'An empty string was passed to the src attribute.' — still present from iter2 (guard <img src> when value is empty)."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration3.py",
+    "/app/backend/tests/test_iteration2.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/iter3_results.xml"
+  ],
+  "action_items": [
+    "(Optional, carried over) Guard ImageUpload <img src> to avoid empty-string src warning."
+  ],
+  "critical_code_review_comments": [
+    "server.py PUT /admin/{services,portfolio,faqs}/{id} still use upsert=True — unknown id creates a new doc instead of returning 404 (carried from iter1).",
+    "server.py: reorder endpoint order matters — /admin/reorder/{collection} is deliberately declared before /admin/{collection}/{id}; this works because both are PUT with distinct static paths, but future refactors should keep the /admin/reorder/... prefix to avoid FastAPI matching /admin/services/{sid} for a literal path 'reorder'.",
+    "server.py upload validates only extension, not file bytes (carried from iter2).",
+    "PortfolioModel.slug default '' allowed by API — creation route auto-fills via _unique_portfolio_slug, but a direct PUT could still normalize it (currently does)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration3.py (new)"
+  ],
+  "success_rate": { "backend": "100% (38/38 regression)", "frontend": "100% of covered flows" },
+  "test_credentials": "admin@veyora.studio / veyora2025",
+  "seed_data_creation": "None. One draft service created via UI + one via API were deleted; reorder tests always restore the original order.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend suites: backend_test.py (iter1, 21), test_iteration2.py (iter2, 8), test_iteration3.py (iter3, 9) — run with `pytest /app/backend/tests -p no:cacheprovider`. Admin sidebar labels are Indonesian: Homepage, Layanan (Services), Portfolio, FAQ, Pengaturan (Settings). Use `page.get_by_text('Layanan', exact=True)` to open the Services panel — not 'Services'. Reorder endpoint contract: PUT /api/admin/reorder/{services|portfolio|faqs} body {ids:[...]} → {ok:true}. Portfolio slug is auto-generated on POST/PUT even when status=draft. Draft filtering: /api/services and /api/portfolio exclude status='draft'; /api/services/{slug} and /api/portfolio/{slug} return the item regardless of status (used by admin preview via ?preview=1 which renders <DraftBanner>). Portfolio homepage cards are <Link to='/portfolio/{slug}'>."
+}

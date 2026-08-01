@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { useContent } from "../../context/ContentContext";
 import { waLink } from "../../lib/whatsapp";
+import { trackWhatsApp } from "../site/Analytics";
 import { fadeUp, viewport } from "../../lib/motionVariants";
 
 export default function FinalCTA() {
@@ -28,7 +29,7 @@ export default function FinalCTA() {
               Ceritakan produk Anda, biar kami bantu selebihnya.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
-              <a href={waLink(settings?.whatsapp_number)} target="_blank" rel="noreferrer" data-testid="final-cta-primary" className="btn-primary">
+              <a href={waLink(settings?.whatsapp_number)} target="_blank" rel="noreferrer" onClick={() => trackWhatsApp("final-cta")} data-analytics="whatsapp" data-testid="final-cta-primary" className="btn-primary">
                 <MessageCircle className="w-4 h-4" /> Konsultasi Gratis
               </a>
               <a href="#portfolio" data-testid="final-cta-secondary" className="btn-secondary">

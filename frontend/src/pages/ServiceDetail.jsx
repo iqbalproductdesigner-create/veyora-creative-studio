@@ -14,6 +14,7 @@ import { useContent } from "../context/ContentContext";
 import { waLink, serviceWaMessage } from "../lib/whatsapp";
 import { fadeUp, stagger, viewport } from "../lib/motionVariants";
 import Seo from "../components/site/Seo";
+import DraftBanner from "../components/site/DraftBanner";
 
 export default function ServiceDetail() {
   const { slug } = useParams();
@@ -71,6 +72,7 @@ export default function ServiceDetail() {
         image={service.og_image || service.hero_image || service.thumbnail}
         url={typeof window !== "undefined" ? window.location.href : ""}
       />
+      <DraftBanner show={service.status === "draft"} />
       <Navbar />
       <main className="pt-20">
         {/* Hero */}

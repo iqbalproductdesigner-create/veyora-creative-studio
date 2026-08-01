@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { MessageCircle, ArrowRight, Star } from "lucide-react";
 import { useContent } from "../../context/ContentContext";
 import { waLink } from "../../lib/whatsapp";
+import { trackWhatsApp } from "../site/Analytics";
 
 export default function Hero() {
   const { homepage, settings } = useContent();
@@ -73,7 +74,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.3 + words.length * 0.09 }}
             className="flex flex-wrap items-center gap-4 mt-10"
           >
-            <a href={waLink(settings?.whatsapp_number)} target="_blank" rel="noreferrer" data-testid="hero-primary-cta" className="btn-primary">
+            <a href={waLink(settings?.whatsapp_number)} target="_blank" rel="noreferrer" onClick={() => trackWhatsApp("hero")} data-analytics="whatsapp" data-testid="hero-primary-cta" className="btn-primary">
               <MessageCircle className="w-4 h-4" />
               {homepage?.primary_cta || "Konsultasi Gratis"}
             </a>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, X, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../lib/api";
 import { Field, Area, StringList } from "./fields";
 import { ImageUpload, GalleryUpload } from "./ImageUpload";
 import MultiSelect from "./MultiSelect";
+import SortableList from "./SortableList";
 
 const empty = {
   project_name: "", category: "Packaging", thumbnail: "", gallery: [],
@@ -25,6 +26,11 @@ export default function PortfolioPanel() {
   }, []);
 
   const set = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
+
+  const handleReorder = (ids) => {
+    setItems((prev) => ids.map((id) => prev.find((x) => x.id === id)));
+    api.put("/admin/reorder/portfolio", { ids }).then(() => toast.success("Urutan diperbarui")).catch(() => toast.error("Gagal mengurutkan"));
+  };
 
   const save = async () => {
     setSaving(true);
@@ -57,9 +63,12 @@ export default function PortfolioPanel() {
           <button onClick={() => setEditing({ ...empty, order: items.length })} data-testid="portfolio-add" className="btn-primary mb-6">
             <Plus className="w-4 h-4" /> Tambah Portfolio
           </button>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {items.map((p) => (
-              <div key={p.id} className="surface-card overflow-hidden flex">
+          <p className="font-body text-xs text-[#A3AAB4] mb-3">Seret kartu untuk mengubah urutan tampil di website.</p>
+          <SortableList
+            items={items}
+            onReorder={handleReorder}
+            renderItem={(p) => (
+              <div className="surface-card overflow-hidden flex">
                 <img src={p.thumbnail} alt={p.project_name} className="w-24 h-24 object-cover" />
                 <div className="flex-1 p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -72,6 +81,9 @@ export default function PortfolioPanel() {
                     <p className="font-body text-xs text-[#A3AAB4] mt-1">{p.category}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
+                    <a href={`/portfolio/${p.slug}${p.status === "draft" ? "?preview=1" : ""}`} target="_blank" rel="noreferrer" title="Pratinjau" data-testid={`portfolio-preview-${p.slug}`} className="w-9 h-9 rounded-lg border border-[#23262B] grid place-items-center text-[#A3AAB4] hover:text-white transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </a>
                     <button onClick={() => setEditing(p)} className="w-9 h-9 rounded-lg border border-[#23262B] grid place-items-center text-[#A3AAB4] hover:text-white transition-colors">
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -81,8 +93,8 @@ export default function PortfolioPanel() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          />
         </>
       ) : (
         <div className="max-w-3xl space-y-5">
@@ -112,16 +124,13 @@ export default function PortfolioPanel() {
           <Area label="Tantangan" value={editing.challenge} onChange={(v) => set("challenge", v)} rows={2} />
           <Area label="Solusi" value={editing.solution} onChange={(v) => set("solution", v)} rows={2} />
           <StringList label="Deliverables" items={editing.deliverables} onChange={(v) => set("deliverables", v)} placeholder="Item" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <MultiSelect
-              label="Layanan Terkait"
-              options={(services || []).map((s) => ({ value: s.slug, label: s.title }))}
-              selected={editing.related_services}
-              onChange={(v) => set("related_services", v)}
-              placeholder="Cari layanan..."
-            />
-            <Field label="Urutan" type="number" value={editing.order} onChange={(v) => set("order", parseInt(v) || 0)} />
-          </div>
+          <MultiSelect
+            label="Layanan Terkait"
+            options={(services || []).map((s) => ({ value: s.slug, label: s.title }))}
+            selected={editing.related_services}
+            onChange={(v) => set("related_services", v)}
+            placeholder="Cari layanan..."
+          />
           <div className="border-t border-[#23262B] pt-5 space-y-4">
             <p className="font-head text-white">SEO</p>
             <Field label="SEO Title" value={editing.seo_title} onChange={(v) => set("seo_title", v)} />

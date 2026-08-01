@@ -46,6 +46,12 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
+def slugify(text: str) -> str:
+    import re
+    s = re.sub(r"[^a-z0-9]+", "-", (text or "").lower().strip()).strip("-")
+    return s or str(uuid.uuid4())[:8]
+
+
 def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
 
@@ -116,6 +122,7 @@ class ServiceModel(BaseModel):
 class PortfolioModel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     project_name: str
+    slug: str = ""
     category: str
     thumbnail: str = ""
     gallery: List[str] = []
@@ -215,6 +222,14 @@ async def get_service(slug: str):
 async def list_portfolio():
     docs = await db.portfolio.find({"status": {"$ne": "draft"}}, {"_id": 0}).sort("order", 1).to_list(200)
     return docs
+
+
+@api_router.get("/portfolio/{slug}")
+async def get_portfolio_item(slug: str):
+    doc = await db.portfolio.find_one({"slug": slug}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Portfolio tidak ditemukan")
+    return doc
 
 
 @api_router.get("/faqs")
@@ -321,9 +336,24 @@ async def delete_service(sid: str, current=Depends(get_current_user)):
 
 
 # Portfolio CRUD
+async def _unique_portfolio_slug(base: str, exclude_id: str = None):
+    slug = base
+    i = 2
+    while True:
+        q = {"slug": slug}
+        if exclude_id:
+            q["id"] = {"$ne": exclude_id}
+        if await db.portfolio.find_one(q) is None:
+            return slug
+        slug = f"{base}-{i}"
+        i += 1
+
+
 @api_router.post("/admin/portfolio")
 async def create_portfolio(data: PortfolioModel, current=Depends(get_current_user)):
     doc = data.model_dump()
+    base = slugify(doc.get("slug") or doc["project_name"])
+    doc["slug"] = await _unique_portfolio_slug(base, exclude_id=doc["id"])
     await db.portfolio.insert_one(doc)
     doc.pop("_id", None)
     return doc
@@ -333,6 +363,8 @@ async def create_portfolio(data: PortfolioModel, current=Depends(get_current_use
 async def update_portfolio(pid: str, data: PortfolioModel, current=Depends(get_current_user)):
     doc = data.model_dump()
     doc["id"] = pid
+    base = slugify(doc.get("slug") or doc["project_name"])
+    doc["slug"] = await _unique_portfolio_slug(base, exclude_id=pid)
     await db.portfolio.update_one({"id": pid}, {"$set": doc}, upsert=True)
     return doc
 
@@ -364,6 +396,32 @@ async def update_faq(fid: str, data: FaqModel, current=Depends(get_current_user)
 async def delete_faq(fid: str, current=Depends(get_current_user)):
     await db.faqs.delete_one({"id": fid})
     return {"ok": True}
+
+
+# Reorder (drag & drop) — body: {"ids": [ordered ids]}
+class ReorderInput(BaseModel):
+    ids: List[str]
+
+
+async def _reorder(collection, ids):
+    for idx, _id in enumerate(ids):
+        await collection.update_one({"id": _id}, {"$set": {"order": idx}})
+    return {"ok": True}
+
+
+@api_router.put("/admin/reorder/services")
+async def reorder_services(data: ReorderInput, current=Depends(get_current_user)):
+    return await _reorder(db.services, data.ids)
+
+
+@api_router.put("/admin/reorder/portfolio")
+async def reorder_portfolio(data: ReorderInput, current=Depends(get_current_user)):
+    return await _reorder(db.portfolio, data.ids)
+
+
+@api_router.put("/admin/reorder/faqs")
+async def reorder_faqs(data: ReorderInput, current=Depends(get_current_user)):
+    return await _reorder(db.faqs, data.ids)
 
 
 # ------------------------------------------------------------------ #
@@ -408,6 +466,10 @@ async def seed_content():
     async for p in db.portfolio.find({"$or": [{"related_services": {"$exists": False}}, {"related_services": []}]}):
         rel = p.get("related_service") and [p["related_service"]] or ([cat_slug[p["category"]]] if p.get("category") in cat_slug else [])
         await db.portfolio.update_one({"id": p["id"]}, {"$set": {"related_services": rel}})
+    # Backfill portfolio slugs
+    async for p in db.portfolio.find({"$or": [{"slug": {"$exists": False}}, {"slug": ""}]}):
+        base = slugify(p.get("project_name", ""))
+        await db.portfolio.update_one({"id": p["id"]}, {"$set": {"slug": await _unique_portfolio_slug(base, exclude_id=p["id"])}})
 
 
 @app.on_event("startup")

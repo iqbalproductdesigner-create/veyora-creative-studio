@@ -4,8 +4,10 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ContentProvider } from "./context/ContentContext";
 import SmoothScroll from "./components/site/SmoothScroll";
+import Analytics from "./components/site/Analytics";
 import Home from "./pages/Home";
 import ServiceDetail from "./pages/ServiceDetail";
+import PortfolioDetail from "./pages/PortfolioDetail";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import "@/App.css";
@@ -29,6 +31,7 @@ function PublicSite() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services/:slug" element={<ServiceDetail />} />
+        <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
       </Routes>
     </SmoothScroll>
   );
@@ -40,6 +43,7 @@ function App() {
       <AuthProvider>
         <ContentProvider>
           <BrowserRouter>
+            <Analytics />
             <Routes>
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
