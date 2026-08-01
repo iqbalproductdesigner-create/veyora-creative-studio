@@ -25,6 +25,13 @@ Homepage flow: Hero → Statistics → Marquee → Why Choose → Services → P
 - Full admin panel: login + dashboard with 5 CMS panels (Homepage, Services CRUD, Portfolio CRUD, FAQ CRUD, Settings). Tested end-to-end.
 - Original Bahasa Indonesia copywriting throughout.
 
+### Iteration 2 (enhancements) — tested 29/29 backend
+- **Image upload** in CMS via Emergent Object Storage (`storage.py`, POST /api/admin/upload → absolute URL, public GET /api/files/{path}). ImageUpload + GalleryUpload components; URL paste still supported.
+- **Per-page SEO** (react-helmet-async): Home + Service Detail set title/description/OG; `og_image` field added to Service & Portfolio.
+- **Portfolio↔Services relationship**: `related_services` (string[] of slugs) via searchable MultiSelect; drawer shows all related services.
+- **Dynamic WhatsApp message** per service (`serviceWaMessage`) — pre-filled Bahasa Indonesia template with service name.
+- **Auto slug** from title (new services), **Draft/Published** status for Services & Portfolio (drafts hidden from public, visible in admin via GET /api/admin/{services,portfolio}).
+
 ## Backlog / Next
 - P1: Image upload in CMS (currently URL fields). Would need object storage integration.
 - P1: Per-page dynamic SEO/OG injection (react-helmet).
