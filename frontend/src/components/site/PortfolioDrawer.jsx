@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
   DrawerTitle,
   DrawerDescription,
   DrawerClose,
@@ -16,13 +15,13 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      {/* Container utama Drawer dengan batas tinggi dan scroll independen */}
-      <DrawerContent className="max-h-[85vh] md:max-h-[90vh] flex flex-col focus:outline-none">
+      {/* Drawer content dengan max-height & overflow aman */}
+      <DrawerContent className="max-h-[85vh] md:max-h-[90vh] flex flex-col focus:outline-none bg-background border-t">
         
-        {/* Top Header Fixed (Tombol Close & Kategori) */}
+        {/* Header Fixed atas */}
         <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b shrink-0">
           <Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider">
-            {item.category || "Portfolio Detail"}
+            {item.category || item.category_name || "Portfolio Detail"}
           </Badge>
           <DrawerClose asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
@@ -31,106 +30,96 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
           </DrawerClose>
         </div>
 
-        {/* Scrollable Area: Bagian ini yang membuat konten bisa di-scroll */}
+        {/* Scrollable Area - Tempat seluruh isi drawer di-scroll */}
         <div className="overflow-y-auto flex-1 p-4 md:p-6 space-y-6">
           
-          {/* Judul & Deskripsi Singkat */}
+          {/* Judul & Deskripsi */}
           <div className="space-y-1.5">
             <DrawerTitle className="text-xl md:text-3xl font-bold">
               {item.title}
             </DrawerTitle>
-            <DrawerDescription className="text-sm md:text-base text-muted-foreground">
-              {item.shortDescription || item.description}
+            <DrawerDescription className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              {item.description || item.shortDescription || "Detail pengerjaan projek Veyora Creative Studio."}
             </DrawerDescription>
           </div>
 
-          {/* Layout Split: Media di Kiri, Informasi Detail di Kanan */}
+          {/* Grid Layout Split View */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             
-            {/* Sisi Kiri (Gambar Utama & Gambar Tambahan) */}
+            {/* Sisi Kiri (Gambar Utama & Galeri) */}
             <div className="lg:col-span-2 space-y-4">
               <div className="rounded-xl overflow-hidden border bg-muted/20">
                 <img
-                  src={item.image}
+                  src={item.image || item.image_url}
                   alt={item.title}
                   className="w-full h-auto object-cover"
                 />
               </div>
               
-              {/* Jika ada gambar galeri tambahan */}
-              {item.gallery && item.gallery.map((imgUrl, idx) => (
+              {item.gallery && Array.isArray(item.gallery) && item.gallery.map((imgUrl, idx) => (
                 <div key={idx} className="rounded-xl overflow-hidden border bg-muted/20">
-                  <img 
-                    src={imgUrl} 
-                    alt={`${item.title} preview ${idx + 1}`} 
-                    className="w-full h-auto object-cover" 
-                  />
+                  <img src={imgUrl} alt={`${item.title} preview ${idx + 1}`} className="w-full h-auto object-cover" />
                 </div>
               ))}
             </div>
 
-            {/* Sisi Kanan (Informasi Layanan & Detail Project) */}
+            {/* Sisi Kanan (Detail Sidebar Info & CTA) */}
             <div className="space-y-6">
-              
-              {/* Card Meta Klien & Scope Work */}
               <div className="bg-muted/40 p-4 md:p-5 rounded-xl border space-y-4">
                 <div>
                   <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-1">
                     Klien / Kategori
                   </h4>
                   <p className="font-medium text-sm">
-                    {item.client || "UMKM & Business Partner"}
+                    {item.client || "UMKM / Partner Bisnis"}
                   </p>
                 </div>
                 
-                {item.deliverables && item.deliverables.length > 0 && (
+                {item.deliverables && (
                   <div>
                     <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
-                      Layanan yang Dikerjakan
+                      Layanan Dikerjakan
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
-                      {item.deliverables.map((tag, i) => (
-                        <Badge key={i} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                      {Array.isArray(item.deliverables) ? (
+                        item.deliverables.map((tag, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">{item.deliverables}</Badge>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Tantangan & Solusi */}
+              {/* Rincian Tantangan & Solusi jika ada */}
               {item.details && (
-                <div className="space-y-4">
+                <div className="space-y-3 text-sm">
                   {item.details.challenge && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Tantangan Klien</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {item.details.challenge}
-                      </p>
+                      <h4 className="font-semibold mb-1">Tantangan</h4>
+                      <p className="text-muted-foreground">{item.details.challenge}</p>
                     </div>
                   )}
                   {item.details.solution && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Solusi Kreatif Veyora</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {item.details.solution}
-                      </p>
+                      <h4 className="font-semibold mb-1">Solusi Veyora</h4>
+                      <p className="text-muted-foreground">{item.details.solution}</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Tombol Aksi / Preview Website */}
-              {item.link && (
+              {/* Tombol Preview Link */}
+              {(item.link || item.project_url) && (
                 <Button className="w-full flex items-center justify-center gap-2" asChild>
-                  <a href={item.link} target="_blank" rel="noopener noreferrer">
-                    <span>Lihat Hasil / Live Preview</span>
+                  <a href={item.link || item.project_url} target="_blank" rel="noopener noreferrer">
+                    <span>Lihat Live Preview</span>
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </Button>
               )}
-
             </div>
 
           </div>
