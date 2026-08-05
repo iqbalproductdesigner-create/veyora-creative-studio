@@ -1,143 +1,139 @@
-import React from 'react';
-import { useContent } from '../../context/ContentContext';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { ArrowRight, MessageSquare, Star } from 'lucide-react';
-import { getWhatsAppLink } from '../../lib/whatsapp';
-import { HOME_TEST_IDS } from '../../constants/testIds';
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { MessageCircle, ArrowRight, Star } from "lucide-react";
+import { useContent } from "../../context/ContentContext";
+import { waLink } from "../../lib/whatsapp";
+import { trackWhatsApp } from "../site/Analytics";
 
 export default function Hero() {
-  const { content } = useContent();
-  const hero = content?.hero || {};
+  const { homepage, settings } = useContent();
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const imgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const glowY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
-  const handleConsultation = () => {
-    window.open(getWhatsAppLink(hero.cta_whatsapp_message || 'Halo Veyora, saya ingin konsultasi gratis'), '_blank');
-  };
-
-  const handlePortfolioClick = () => {
-    const el = document.getElementById('portfolio');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  const headline = homepage?.headline || "Bantu Produkmu Terlihat Lebih Profesional";
+  const words = headline.split(" ");
 
   return (
-    <section data-testid={HOME_TEST_IDS.HERO_SECTION} className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+    <section
+      id="home"
+      ref={ref}
+      data-testid="hero-section"
+      className="relative min-h-screen flex items-center pt-28 pb-16 overflow-hidden"
+    >
+      {/* soft accent glow */}
+      <motion.div
+        style={{ y: glowY }}
+        className="pointer-events-none absolute -top-40 right-0 w-[520px] h-[520px] rounded-full blur-[140px] opacity-20"
+        aria-hidden
+      >
+        <div className="w-full h-full rounded-full bg-[#5C6773]" />
+      </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left Column: Headline & Content */}
-          <div className="lg:col-span-7 space-y-8">
-            <Badge 
-              data-testid={HOME_TEST_IDS.HERO_BADGE}
-              variant="outline" 
-              className="px-4 py-1.5 text-xs font-medium tracking-wide uppercase border-border/60 bg-secondary/50 backdrop-blur-sm"
-            >
-              {hero.badge || 'Partner Kreatif Bisnis Anda'}
-            </Badge>
+      <div className="veyora-container relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="lg:col-span-7">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 rounded-full border border-[#23262B] px-4 py-2 mb-8"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#5C6773]" />
+            <span className="eyebrow">Partner Kreatif Bisnis Anda</span>
+          </motion.div>
 
-            <h1 
-              data-testid={HOME_TEST_IDS.HERO_TITLE}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.15]"
-            >
-              {hero.title || 'Bantu Produkmu Terlihat Lebih Profesional'}
-            </h1>
+          <h1 className="font-head font-bold text-white text-[2.75rem] leading-[1.1] sm:text-6xl lg:text-[4.5rem] lg:leading-[1.05] tracking-tight">
+            {words.map((w, i) => (
+              <span key={i} className="inline-block overflow-hidden mr-[0.25em] pb-[0.12em] align-bottom">
+                <motion.span
+                  className="inline-block"
+                  initial={{ y: "115%", opacity: 0 }}
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.15 + i * 0.09, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {w}
+                </motion.span>
+              </span>
+            ))}
+          </h1>
 
-            <p 
-              data-testid={HOME_TEST_IDS.HERO_DESCRIPTION}
-              className="text-lg text-muted-foreground leading-relaxed max-w-2xl"
-            >
-              {hero.description || 'Veyora hadir sebagai partner kreatif jangka panjang. Kami bantu UMKM dan brand lokal tampil lebih meyakinkan lewat kemasan, logo, dan visual yang menumbuhkan kepercayaan pelanggan.'}
-            </p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 + words.length * 0.09 }}
+            className="font-body text-base md:text-lg text-[#A3AAB4] leading-relaxed max-w-xl mt-7"
+          >
+            {homepage?.description}
+          </motion.p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Button 
-                data-testid={HOME_TEST_IDS.HERO_CTA_PRIMARY}
-                size="lg" 
-                onClick={handleConsultation}
-                className="rounded-full px-8 h-12 text-base font-semibold gap-2 shadow-lg hover:shadow-primary/25 transition-all"
-              >
-                <MessageSquare className="w-5 h-5" />
-                {hero.cta_primary_text || 'Konsultasi Gratis'}
-              </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 + words.length * 0.09 }}
+            className="flex flex-wrap items-center gap-4 mt-10"
+          >
+            <a href={waLink(settings?.whatsapp_number)} target="_blank" rel="noreferrer" onClick={() => trackWhatsApp("hero")} data-analytics="whatsapp" data-testid="hero-primary-cta" className="btn-primary">
+              <MessageCircle className="w-4 h-4" />
+              {homepage?.primary_cta || "Konsultasi Gratis"}
+            </a>
+            <a href="#portfolio" data-testid="hero-secondary-cta" className="btn-secondary">
+              {homepage?.secondary_cta || "Lihat Portfolio"}
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </motion.div>
 
-              <Button 
-                data-testid={HOME_TEST_IDS.HERO_CTA_SECONDARY}
-                variant="outline" 
-                size="lg" 
-                onClick={handlePortfolioClick}
-                className="rounded-full px-8 h-12 text-base font-semibold gap-2 border-border/80 hover:bg-secondary/80 transition-all"
-              >
-                {hero.cta_secondary_text || 'Lihat Portfolio'}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.5 + words.length * 0.09 }}
+            className="flex items-center gap-4 mt-12"
+          >
+            <div className="flex -space-x-3">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="w-9 h-9 rounded-full border-2 border-[#080D10] bg-[#23262B]" />
+              ))}
             </div>
-
-            {/* Social Proof Section (HANYA BAGIAN INI YANG DITAMBAHKAN GAMBAR AVATAR) */}
-            <div className="pt-6 border-t border-border/40 flex items-center gap-6">
-              <div className="flex -space-x-3 overflow-hidden">
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 1"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 2"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 3"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 4"
-                />
+            <div>
+              <div className="flex items-center gap-1 text-[#D9DEE6]">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                ))}
               </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-amber-400">
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  {hero.social_proof_text || 'Dipercaya 180+ brand lokal'}
-                </p>
-              </div>
+              <p className="font-body text-xs text-[#A3AAB4] mt-1">Dipercaya 180+ brand lokal</p>
             </div>
+          </motion.div>
+        </div>
 
-          </div>
-
-          {/* Right Column: Hero Image Showcase */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              <div className="relative rounded-3xl overflow-hidden border border-border/60 bg-card p-3 shadow-2xl">
-                <img 
-                  data-testid={HOME_TEST_IDS.HERO_IMAGE}
-                  src={hero.image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop'} 
-                  alt="Veyora Showcase"
-                  className="w-full h-[420px] object-cover rounded-2xl"
-                />
-                
-                {/* Floating Stat Card */}
-                {hero.stat_number && (
-                  <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md border border-border/80 p-4 rounded-2xl shadow-xl space-y-0.5">
-                    <p className="text-2xl font-bold text-foreground">{hero.stat_number}</p>
-                    <p className="text-xs text-muted-foreground">{hero.stat_label || 'Klien merasa puas'}</p>
-                  </div>
-                )}
-              </div>
+        <div className="lg:col-span-5">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="relative"
+          >
+            <div className="relative rounded-2xl overflow-hidden border border-[#23262B] bg-[#121417]">
+              <motion.img
+                style={{ y: imgY, scale: imgScale }}
+                src={homepage?.hero_image}
+                alt="Veyora product mockup"
+                className="w-full h-[420px] md:h-[560px] object-cover"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080D10] via-transparent to-transparent" />
             </div>
-          </div>
-
+            {/* floating stat card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1 }}
+              className="absolute -bottom-6 -left-6 surface-card px-6 py-4 hidden sm:block"
+            >
+              <p className="font-editorial text-3xl text-white leading-none">97%</p>
+              <p className="font-body text-xs text-[#A3AAB4] mt-1">Klien merasa puas</p>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>
