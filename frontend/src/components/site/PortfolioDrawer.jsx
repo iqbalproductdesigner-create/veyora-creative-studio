@@ -1,10 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { X, ArrowUpRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 
 export default function PortfolioDrawer({ item, open, onOpenChange }) {
-  // Matikan scroll pada halaman utama saat drawer terbuka
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Kumpulkan list gambar (Image utama + gallery)
+  const images = React.useMemo(() => {
+    if (!item) return [];
+    if (item.gallery && Array.isArray(item.gallery) && item.gallery.length > 0) {
+      return item.gallery;
+    }
+    return [item.image || item.image_url].filter(Boolean);
+  }, [item]);
+
+  // Reset index gambar ketika item berubah
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [item]);
+
+  // Lock Body Scroll
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -18,97 +33,145 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
 
   if (!open || !item) return null;
 
+  const handlePrevImage = () => {
+    setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  // Tentukan link halaman detail service sesuai kategori
+  const serviceDetailLink = item.serviceSlug 
+    ? `/services/${item.serviceSlug}` 
+    : `/services#${(item.category || '').toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end transition-opacity duration-300">
       
-      {/* Backdrop Hitam Transparan */}
+      {/* Backdrop Dark Transparan */}
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
         onClick={() => onOpenChange(false)} 
       />
 
-      {/* Side Drawer Container (Slide dari Kanan ke Kiri) */}
-      <div className="relative z-10 w-full max-w-md md:max-w-lg h-full bg-background border-l border-border shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-300">
+      {/* Side Drawer Container - Full Dark Theme */}
+      <div className="relative z-10 w-full max-w-md md:max-w-lg h-full bg-[#0D1117] text-white border-l border-zinc-800/80 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-300">
         
-        {/* Floating Close Button */}
+        {/* Top Close Button */}
         <Button 
           variant="secondary" 
           size="icon" 
-          className="absolute top-4 right-4 z-20 rounded-full h-9 w-9 bg-black/60 hover:bg-black/90 text-white backdrop-blur border border-white/10"
+          className="absolute top-4 right-4 z-30 rounded-full h-8 w-8 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 backdrop-blur"
           onClick={() => onOpenChange(false)}
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </Button>
 
-        {/* Scrollable Drawer Content */}
+        {/* Scrollable Body */}
         <div className="overflow-y-auto flex-1">
           
-          {/* Cover / Main Image */}
-          <div className="relative aspect-video w-full bg-muted/30 overflow-hidden border-b border-border">
-            <img
-              src={item.image || item.image_url}
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
+          {/* Image Slider / Carousel Section */}
+          <div className="relative aspect-video w-full bg-zinc-950 overflow-hidden border-b border-zinc-800">
+            {images.length > 0 && (
+              <img
+                src={images[activeImageIndex]}
+                alt={`${item.title} slide ${activeImageIndex + 1}`}
+                className="w-full h-full object-cover transition-all duration-300"
+              />
+            )}
+
+            {/* Toggle Panah (Kiri & Kanan) jika ada lebih dari 1 gambar */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevImage}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur border border-white/10 transition-all"
+                  aria-label="Previous Image"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur border border-white/10 transition-all"
+                  aria-label="Next Image"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Dot Indicators */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur border border-white/10">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`h-1.5 rounded-full transition-all ${
+                        activeImageIndex === idx ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Body Detail Content */}
+          {/* Content Description & Meta */}
           <div className="p-6 space-y-6">
             
             {/* Category & Title */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
                 {item.category || item.category_name || "Project Detail"}
               </span>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              <h2 className="text-2xl font-bold tracking-tight text-white leading-snug">
                 {item.title}
               </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 {item.description || item.shortDescription}
               </p>
             </div>
 
-            {/* Tantangan Section */}
+            {/* Tantangan */}
             {item.details?.challenge && (
               <div className="space-y-1.5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   TANTANGAN
                 </h4>
-                <p className="text-sm text-foreground/90 leading-relaxed">
+                <p className="text-sm text-zinc-300 leading-relaxed">
                   {item.details.challenge}
                 </p>
               </div>
             )}
 
-            {/* Solusi Section */}
+            {/* Solusi */}
             {item.details?.solution && (
               <div className="space-y-1.5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   SOLUSI
                 </h4>
-                <p className="text-sm text-foreground/90 leading-relaxed">
+                <p className="text-sm text-zinc-300 leading-relaxed">
                   {item.details.solution}
                 </p>
               </div>
             )}
 
-            {/* Deliverables / Scope Work */}
+            {/* Deliverables */}
             {item.deliverables && (
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   DELIVERABLES
                 </h4>
-                <ul className="space-y-2 text-sm text-foreground/90">
+                <ul className="space-y-2 text-sm text-zinc-300">
                   {Array.isArray(item.deliverables) ? (
                     item.deliverables.map((deliv, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="text-primary font-bold">•</span>
+                        <span className="text-amber-400 font-bold">•</span>
                         <span>{deliv}</span>
                       </li>
                     ))
                   ) : (
                     <li className="flex items-start gap-2">
-                      <span className="text-primary font-bold">•</span>
+                      <span className="text-amber-400 font-bold">•</span>
                       <span>{item.deliverables}</span>
                     </li>
                   )}
@@ -116,29 +179,18 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
               </div>
             )}
 
-            {/* Gallery / Extra Images */}
-            {item.gallery && Array.isArray(item.gallery) && item.gallery.map((imgUrl, idx) => (
-              <div key={idx} className="rounded-xl overflow-hidden border border-border">
-                <img src={imgUrl} alt={`${item.title} ${idx + 1}`} className="w-full h-auto object-cover" />
-              </div>
-            ))}
-
           </div>
         </div>
 
-        {/* Sticky CTA Bottom Bar */}
-        <div className="p-4 border-t border-border bg-background/95 backdrop-blur shrink-0">
+        {/* Sticky CTA Bottom Bar -> Redirects to Detail Service Page */}
+        <div className="p-4 border-t border-zinc-800 bg-[#0D1117] shrink-0">
           <Button 
-            className="w-full rounded-full py-6 text-base font-semibold gap-2 shadow-lg" 
+            className="w-full rounded-full py-6 text-sm md:text-base font-semibold gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 transition-all shadow-lg" 
             asChild
           >
-            <a 
-              href={`https://wa.me/?text=${encodeURIComponent(`Halo Veyora, saya tertarik membuat proyek serupa seperti: ${item.title}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={serviceDetailLink}>
               <span>Pesan Proyek Serupa</span>
-              <ArrowUpRight className="w-5 h-5" />
+              <ArrowUpRight className="w-4 h-4" />
             </a>
           </Button>
         </div>
