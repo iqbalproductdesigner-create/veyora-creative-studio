@@ -8,7 +8,6 @@ export default function Portfolio({ portfolioItems = [] }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Data dummy fallback jika data dari API/Context belum dimuat
   const defaultItems = [
     {
       id: 1,
@@ -46,18 +45,18 @@ export default function Portfolio({ portfolioItems = [] }) {
   };
 
   return (
-    <section id="portfolio" className="py-16 md:py-24 bg-background">
+    <section id="portfolio" className="py-16 md:py-24 bg-[#0B0F17] text-white">
       <div className="container mx-auto px-4 md:px-6">
         
         {/* Section Title */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <Badge variant="secondary" className="px-3 py-1 text-xs uppercase tracking-wider">
+          <Badge variant="outline" className="px-3 py-1 text-xs uppercase tracking-wider border-zinc-700 bg-zinc-900/60 text-zinc-300">
             Portofolio & Hasil Karya
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
             Project yang Pernah Kami Bantu
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base">
+          <p className="text-zinc-400 text-sm md:text-base">
             Dari desain kebutuhan dasar bisnis hingga website yang siap menaikkan kelas usaha kamu.
           </p>
         </div>
@@ -68,18 +67,18 @@ export default function Portfolio({ portfolioItems = [] }) {
             <div
               key={item.id || item.title}
               onClick={() => handleOpenDetail(item)}
-              className="group cursor-pointer rounded-2xl border bg-card overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              className="group cursor-pointer rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 overflow-hidden hover:border-zinc-700 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Image Showcase */}
-                <div className="relative aspect-video overflow-hidden bg-muted">
+                <div className="relative aspect-video overflow-hidden bg-zinc-950">
                   <img
                     src={item.image || item.image_url}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button variant="secondary" size="sm" className="gap-2 rounded-full">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                    <Button size="sm" className="gap-2 rounded-full font-medium shadow-lg">
                       <Eye className="w-4 h-4" />
                       <span>Lihat Detail</span>
                     </Button>
@@ -87,23 +86,23 @@ export default function Portfolio({ portfolioItems = [] }) {
                 </div>
 
                 {/* Card Text Content */}
-                <div className="p-5 space-y-2">
-                  <Badge variant="outline" className="text-[11px] font-medium">
+                <div className="p-5 space-y-2.5">
+                  <Badge variant="outline" className="text-[11px] font-medium border-zinc-700 bg-zinc-800/50 text-zinc-300">
                     {item.category || item.category_name || "Project"}
                   </Badge>
-                  <h3 className="font-bold text-lg leading-snug group-hover:text-primary transition-colors">
+                  <h3 className="font-bold text-lg text-zinc-100 group-hover:text-primary transition-colors leading-snug">
                     {item.title}
                   </h3>
-                  <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
+                  <p className="text-zinc-400 text-xs md:text-sm line-clamp-2 leading-relaxed">
                     {item.description || item.shortDescription}
                   </p>
                 </div>
               </div>
 
               {/* Card Footer */}
-              <div className="px-5 pb-5 pt-2 border-t mt-auto flex items-center justify-between text-xs text-muted-foreground">
-                <span>{item.client || "Veyora Client"}</span>
-                <span className="font-semibold text-primary flex items-center gap-1 group-hover:underline">
+              <div className="px-5 pb-5 pt-3 border-t border-zinc-800/80 mt-auto flex items-center justify-between text-xs text-zinc-400">
+                <span className="truncate max-w-[150px]">{item.client || "Veyora Client"}</span>
+                <span className="font-semibold text-primary flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                   Detail <ExternalLink className="w-3 h-3" />
                 </span>
               </div>
@@ -113,7 +112,7 @@ export default function Portfolio({ portfolioItems = [] }) {
 
       </div>
 
-      {/* Pop-up Drawer */}
+      {/* Pop-up Drawer Modal Dark */}
       <PortfolioDrawer
         item={selectedItem}
         open={isDrawerOpen}

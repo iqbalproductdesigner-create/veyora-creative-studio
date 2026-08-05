@@ -1,131 +1,149 @@
-import React from 'react';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerClose,
-} from "@/components/ui/drawer";
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, ExternalLink } from "lucide-react";
+import { X, ArrowUpRight } from "lucide-react";
 
 export default function PortfolioDrawer({ item, open, onOpenChange }) {
-  if (!item) return null;
+  // Matikan scroll pada halaman utama saat drawer terbuka
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [open]);
+
+  if (!open || !item) return null;
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      {/* Drawer content dengan max-height & overflow aman */}
-      <DrawerContent className="max-h-[85vh] md:max-h-[90vh] flex flex-col focus:outline-none bg-background border-t">
+    <div className="fixed inset-0 z-50 flex justify-end transition-opacity duration-300">
+      
+      {/* Backdrop Hitam Transparan */}
+      <div 
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={() => onOpenChange(false)} 
+      />
+
+      {/* Side Drawer Container (Slide dari Kanan ke Kiri) */}
+      <div className="relative z-10 w-full max-w-md md:max-w-lg h-full bg-background border-l border-border shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-300">
         
-        {/* Header Fixed atas */}
-        <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b shrink-0">
-          <Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider">
-            {item.category || item.category_name || "Portfolio Detail"}
-          </Badge>
-          <DrawerClose asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <X className="w-5 h-5" />
-            </Button>
-          </DrawerClose>
-        </div>
+        {/* Floating Close Button */}
+        <Button 
+          variant="secondary" 
+          size="icon" 
+          className="absolute top-4 right-4 z-20 rounded-full h-9 w-9 bg-black/60 hover:bg-black/90 text-white backdrop-blur border border-white/10"
+          onClick={() => onOpenChange(false)}
+        >
+          <X className="w-5 h-5" />
+        </Button>
 
-        {/* Scrollable Area - Tempat seluruh isi drawer di-scroll */}
-        <div className="overflow-y-auto flex-1 p-4 md:p-6 space-y-6">
+        {/* Scrollable Drawer Content */}
+        <div className="overflow-y-auto flex-1">
           
-          {/* Judul & Deskripsi */}
-          <div className="space-y-1.5">
-            <DrawerTitle className="text-xl md:text-3xl font-bold">
-              {item.title}
-            </DrawerTitle>
-            <DrawerDescription className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              {item.description || item.shortDescription || "Detail pengerjaan projek Veyora Creative Studio."}
-            </DrawerDescription>
+          {/* Cover / Main Image */}
+          <div className="relative aspect-video w-full bg-muted/30 overflow-hidden border-b border-border">
+            <img
+              src={item.image || item.image_url}
+              alt={item.title}
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          {/* Grid Layout Split View */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Body Detail Content */}
+          <div className="p-6 space-y-6">
             
-            {/* Sisi Kiri (Gambar Utama & Galeri) */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="rounded-xl overflow-hidden border bg-muted/20">
-                <img
-                  src={item.image || item.image_url}
-                  alt={item.title}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-              
-              {item.gallery && Array.isArray(item.gallery) && item.gallery.map((imgUrl, idx) => (
-                <div key={idx} className="rounded-xl overflow-hidden border bg-muted/20">
-                  <img src={imgUrl} alt={`${item.title} preview ${idx + 1}`} className="w-full h-auto object-cover" />
-                </div>
-              ))}
+            {/* Category & Title */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                {item.category || item.category_name || "Project Detail"}
+              </span>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                {item.title}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {item.description || item.shortDescription}
+              </p>
             </div>
 
-            {/* Sisi Kanan (Detail Sidebar Info & CTA) */}
-            <div className="space-y-6">
-              <div className="bg-muted/40 p-4 md:p-5 rounded-xl border space-y-4">
-                <div>
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-1">
-                    Klien / Kategori
-                  </h4>
-                  <p className="font-medium text-sm">
-                    {item.client || "UMKM / Partner Bisnis"}
-                  </p>
-                </div>
-                
-                {item.deliverables && (
-                  <div>
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
-                      Layanan Dikerjakan
-                    </h4>
-                    <div className="flex flex-wrap gap-1.5">
-                      {Array.isArray(item.deliverables) ? (
-                        item.deliverables.map((tag, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
-                        ))
-                      ) : (
-                        <Badge variant="secondary" className="text-xs">{item.deliverables}</Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* Tantangan Section */}
+            {item.details?.challenge && (
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  TANTANGAN
+                </h4>
+                <p className="text-sm text-foreground/90 leading-relaxed">
+                  {item.details.challenge}
+                </p>
               </div>
+            )}
 
-              {/* Rincian Tantangan & Solusi jika ada */}
-              {item.details && (
-                <div className="space-y-3 text-sm">
-                  {item.details.challenge && (
-                    <div>
-                      <h4 className="font-semibold mb-1">Tantangan</h4>
-                      <p className="text-muted-foreground">{item.details.challenge}</p>
-                    </div>
-                  )}
-                  {item.details.solution && (
-                    <div>
-                      <h4 className="font-semibold mb-1">Solusi Veyora</h4>
-                      <p className="text-muted-foreground">{item.details.solution}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+            {/* Solusi Section */}
+            {item.details?.solution && (
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  SOLUSI
+                </h4>
+                <p className="text-sm text-foreground/90 leading-relaxed">
+                  {item.details.solution}
+                </p>
+              </div>
+            )}
 
-              {/* Tombol Preview Link */}
-              {(item.link || item.project_url) && (
-                <Button className="w-full flex items-center justify-center gap-2" asChild>
-                  <a href={item.link || item.project_url} target="_blank" rel="noopener noreferrer">
-                    <span>Lihat Live Preview</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
-              )}
-            </div>
+            {/* Deliverables / Scope Work */}
+            {item.deliverables && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  DELIVERABLES
+                </h4>
+                <ul className="space-y-2 text-sm text-foreground/90">
+                  {Array.isArray(item.deliverables) ? (
+                    item.deliverables.map((deliv, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-primary font-bold">•</span>
+                        <span>{deliv}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary font-bold">•</span>
+                      <span>{item.deliverables}</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+
+            {/* Gallery / Extra Images */}
+            {item.gallery && Array.isArray(item.gallery) && item.gallery.map((imgUrl, idx) => (
+              <div key={idx} className="rounded-xl overflow-hidden border border-border">
+                <img src={imgUrl} alt={`${item.title} ${idx + 1}`} className="w-full h-auto object-cover" />
+              </div>
+            ))}
 
           </div>
         </div>
 
-      </DrawerContent>
-    </Drawer>
+        {/* Sticky CTA Bottom Bar */}
+        <div className="p-4 border-t border-border bg-background/95 backdrop-blur shrink-0">
+          <Button 
+            className="w-full rounded-full py-6 text-base font-semibold gap-2 shadow-lg" 
+            asChild
+          >
+            <a 
+              href={`https://wa.me/?text=${encodeURIComponent(`Halo Veyora, saya tertarik membuat proyek serupa seperti: ${item.title}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>Pesan Proyek Serupa</span>
+              <ArrowUpRight className="w-5 h-5" />
+            </a>
+          </Button>
+        </div>
+
+      </div>
+    </div>
   );
 }
