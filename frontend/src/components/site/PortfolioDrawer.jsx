@@ -120,7 +120,7 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
             
             {/* Category & Title */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 {item.category || item.category_name || "Project Detail"}
               </span>
               <h2 className="text-2xl font-bold tracking-tight text-white leading-snug">
@@ -165,13 +165,13 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
                   {Array.isArray(item.deliverables) ? (
                     item.deliverables.map((deliv, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="text-amber-400 font-bold">•</span>
+                        <span className="text-zinc-400 font-bold">•</span>
                         <span>{deliv}</span>
                       </li>
                     ))
                   ) : (
                     <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">•</span>
+                      <span className="text-zinc-400 font-bold">•</span>
                       <span>{item.deliverables}</span>
                     </li>
                   )}
@@ -182,10 +182,10 @@ export default function PortfolioDrawer({ item, open, onOpenChange }) {
           </div>
         </div>
 
-        {/* Sticky CTA Bottom Bar -> Redirects to Detail Service Page */}
+        {/* Sticky CTA Bottom Bar - Matched with Theme Button Style */}
         <div className="p-4 border-t border-zinc-800 bg-[#0D1117] shrink-0">
           <Button 
-            className="w-full rounded-full py-6 text-sm md:text-base font-semibold gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 transition-all shadow-lg" 
+            className="w-full rounded-full py-6 text-sm md:text-base font-semibold gap-2 bg-[#3b434e] hover:bg-[#4a5462] text-white transition-all shadow-lg border border-white/10" 
             asChild
           >
             <a href={serviceDetailLink}>
