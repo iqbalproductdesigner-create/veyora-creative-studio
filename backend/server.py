@@ -614,3 +614,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/api/portfolios")
+async def get_portfolios():
+    try:
+        # Panggil langsung dari database veyora_db
+        items = list(client['veyora_db'].portfolios.find({}, {"_id": 0}))
+        if not items:
+            items = list(db.portfolios.find({}, {"_id": 0}))
+        return items
+    except Exception as e:
+        return []
+
+
+@api_router.get("/portfolio")
+async def list_public_portfolio():
+    return await db.portfolio.find({"status": {"$ne": "draft"}}, {"_id": 0}).sort("order", 1).to_list(500)
+
+@api_router.get("/portfolios")
+async def list_public_portfolios_alias():
+    return await db.portfolio.find({"status": {"$ne": "draft"}}, {"_id": 0}).sort("order", 1).to_list(500)
