@@ -8,11 +8,9 @@ export default function Portfolio() {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // State untuk Carousel Main Section
   const [activeSlide, setActiveSlide] = useState(0);
   const sliderRef = useRef(null);
 
-  // State untuk Drawer Detail
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -53,7 +51,6 @@ export default function Portfolio() {
     }
   };
 
-  // Navigasi Slider Carousel Utama
   const handleNextSlide = () => {
     if (sliderRef.current) {
       const cardWidth = sliderRef.current.offsetWidth;
@@ -102,14 +99,11 @@ export default function Portfolio() {
 
   const handlePesanProyek = () => {
     if (!selectedItem) return;
-    
     let targetServiceSlug = selectedItem.related_service;
     if (Array.isArray(selectedItem.related_services) && selectedItem.related_services.length > 0) {
       targetServiceSlug = selectedItem.related_services[0];
     }
-
     closeDrawer();
-
     if (targetServiceSlug) {
       navigate(`/services/${targetServiceSlug}`);
     } else {
@@ -127,7 +121,6 @@ export default function Portfolio() {
     <section id="portfolio" className="py-24 bg-[#080D10] text-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Section dengan Control Trigger Arrow */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-4 max-w-2xl">
             <span className="inline-block text-xs font-semibold tracking-wider text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full bg-emerald-500/10 uppercase">
@@ -141,20 +134,17 @@ export default function Portfolio() {
             </p>
           </div>
 
-          {/* Navigasi Arrow Button */}
           {!loading && portfolios.length > 0 && (
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrevSlide}
                 className="p-3 rounded-full bg-[#14181D] border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500 hover:text-black transition-all duration-300 text-white shadow-lg"
-                aria-label="Previous Slide"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleNextSlide}
                 className="p-3 rounded-full bg-[#14181D] border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500 hover:text-black transition-all duration-300 text-white shadow-lg"
-                aria-label="Next Slide"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -162,14 +152,12 @@ export default function Portfolio() {
           )}
         </div>
 
-        {/* Dynamic Carousel Container */}
         {loading ? (
           <div className="text-center py-16 text-gray-500">Memuat karya dari database...</div>
         ) : portfolios.length === 0 ? (
           <div className="text-center py-16 text-gray-500">Belum ada data karya di database.</div>
         ) : (
           <div className="space-y-8">
-            {/* Horizontal Scrollable Slider */}
             <div
               ref={sliderRef}
               onScroll={handleScroll}
@@ -186,7 +174,6 @@ export default function Portfolio() {
                     onClick={() => openDrawer(item)}
                     className="min-w-[300px] sm:min-w-[380px] lg:min-w-[420px] snap-start group relative rounded-2xl bg-[#0D0E12] border border-white/10 overflow-hidden hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                   >
-                    {/* Image & Overlay */}
                     <div className="aspect-[4/3] overflow-hidden relative bg-black/40">
                       <img
                         src={coverImg}
@@ -194,8 +181,6 @@ export default function Portfolio() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { e.target.src = fallbackImages[idx % fallbackImages.length]; }}
                       />
-                      
-                      {/* Hover Button */}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                         <span className="inline-flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-medium text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                           <Eye className="w-4 h-4" /> Lihat Detail
@@ -203,7 +188,6 @@ export default function Portfolio() {
                       </div>
                     </div>
 
-                    {/* Content */}
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-2">
                         <span className="inline-block text-[10px] font-semibold tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
@@ -217,7 +201,6 @@ export default function Portfolio() {
                         </p>
                       </div>
 
-                      {/* Footer Card */}
                       <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
                         <span>{item.client_name || item.client || 'Klien Veyora'}</span>
                         <span className="inline-flex items-center gap-1 font-medium text-gray-300 group-hover:text-emerald-400 transition-colors">
@@ -230,7 +213,6 @@ export default function Portfolio() {
               })}
             </div>
 
-            {/* Stepper / Progress Dot Indicator Main Carousel */}
             <div className="flex items-center justify-center gap-2 pt-4">
               {portfolios.map((_, i) => (
                 <button
@@ -243,11 +225,8 @@ export default function Portfolio() {
                     }
                   }}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    i === activeSlide
-                      ? 'w-8 bg-emerald-400 shadow-lg shadow-emerald-500/30'
-                      : 'w-2 bg-white/20 hover:bg-white/40'
+                    i === activeSlide ? 'w-8 bg-emerald-400 shadow-lg' : 'w-2 bg-white/20'
                   }`}
-                  aria-label={`Go to slide ${i + 1}`}
                 />
               ))}
             </div>
@@ -256,71 +235,32 @@ export default function Portfolio() {
 
       </div>
 
-      {/* Slide-over Drawer Modal Detail Portfolio */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* Backdrop Overlay Blur */}
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
-            onClick={closeDrawer}
-          />
-
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300" onClick={closeDrawer} />
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
             <div className="w-screen max-w-md sm:max-w-lg bg-[#0F1115] border-l border-white/10 text-white flex flex-col justify-between shadow-2xl relative z-10">
-              
-              {/* Tombol Close Top Right */}
-              <button
-                onClick={closeDrawer}
-                className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black p-2 rounded-full text-gray-300 hover:text-white border border-white/10 transition-colors"
-              >
+              <button onClick={closeDrawer} className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black p-2 rounded-full text-gray-300 hover:text-white border border-white/10">
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Scrollable Container Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                
-                {/* Image Gallery Slider Drawer */}
                 {(() => {
                   const imgs = getItemImages(selectedItem);
                   return (
-                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-black/60 border border-white/10 group">
-                      <img
-                        src={imgs[currentImageIndex]}
-                        alt="Portfolio Gallery"
-                        className="w-full h-full object-cover transition-all duration-300"
-                      />
-
-                      {/* Tombol Panah Prev & Next (Gaya Lingkaran Gelap Sesuai Screenshot) */}
+                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-black/60 border border-white/10">
+                      <img src={imgs[currentImageIndex]} alt="Portfolio Gallery" className="w-full h-full object-cover" />
                       {imgs.length > 1 && (
                         <>
-                          <button
-                            onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1))}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-white/10 transition-all"
-                            aria-label="Previous Image"
-                          >
+                          <button onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1))} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-white/10">
                             <ChevronLeft className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => setCurrentImageIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1))}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-white/10 transition-all"
-                            aria-label="Next Image"
-                          >
+                          <button onClick={() => setCurrentImageIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-white/10">
                             <ChevronRight className="w-4 h-4" />
                           </button>
-
-                          {/* Pill Progress Bar Capsule Melayang (Sama Persis dengan Screenshot) */}
                           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
                             {imgs.map((_, i) => (
-                              <button
-                                key={i}
-                                onClick={() => setCurrentImageIndex(i)}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                  i === currentImageIndex 
-                                    ? 'w-6 bg-white' 
-                                    : 'w-2 bg-white/40 hover:bg-white/60'
-                                }`}
-                                aria-label={`View image ${i + 1}`}
-                              />
+                              <button key={i} onClick={() => setCurrentImageIndex(i)} className={`h-1.5 rounded-full transition-all duration-300 ${i === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/40'}`} />
                             ))}
                           </div>
                         </>
@@ -329,7 +269,6 @@ export default function Portfolio() {
                   );
                 })()}
 
-                {/* Body Details */}
                 <div className="space-y-5">
                   <div>
                     <span className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
@@ -343,36 +282,23 @@ export default function Portfolio() {
                     </p>
                   </div>
 
-                  {/* Tantangan */}
                   {selectedItem.challenge && (
                     <div className="space-y-1">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                        TANTANGAN
-                      </h4>
-                      <p className="text-xs text-gray-300 leading-relaxed">
-                        {selectedItem.challenge}
-                      </p>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">TANTANGAN</h4>
+                      <p className="text-xs text-gray-300 leading-relaxed">{selectedItem.challenge}</p>
                     </div>
                   )}
 
-                  {/* Solusi */}
                   {selectedItem.solution && (
                     <div className="space-y-1">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                        SOLUSI
-                      </h4>
-                      <p className="text-xs text-gray-300 leading-relaxed">
-                        {selectedItem.solution}
-                      </p>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">SOLUSI</h4>
+                      <p className="text-xs text-gray-300 leading-relaxed">{selectedItem.solution}</p>
                     </div>
                   )}
 
-                  {/* Deliverables */}
                   {Array.isArray(selectedItem.deliverables) && selectedItem.deliverables.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                        DELIVERABLES
-                      </h4>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">DELIVERABLES</h4>
                       <ul className="space-y-1.5">
                         {selectedItem.deliverables.map((item, idx) => (
                           <li key={idx} className="text-xs text-gray-300 flex items-center gap-2">
@@ -384,24 +310,17 @@ export default function Portfolio() {
                     </div>
                   )}
                 </div>
-
               </div>
 
-              {/* Sticky CTA Bottom Drawer (Gaya Tombol Sesuai Screenshot) */}
               <div className="p-4 border-t border-white/10 bg-[#0F1115]">
-                <button
-                  onClick={handlePesanProyek}
-                  className="w-full bg-[#272B33] hover:bg-emerald-500 hover:text-black text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg"
-                >
+                <button onClick={handlePesanProyek} className="w-full bg-[#272B33] hover:bg-emerald-500 hover:text-black text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg">
                   Pesan Proyek Serupa <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </button>
               </div>
-
             </div>
           </div>
         </div>
       )}
-
     </section>
   );
 }
