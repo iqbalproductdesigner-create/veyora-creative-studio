@@ -1,77 +1,74 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Lock, Mail, Loader2 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lock, User } from 'lucide-react';
 
 export default function AdminLogin() {
-  const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const submit = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-    const res = await login(email, password);
-    setLoading(false);
-    if (res.ok) navigate("/admin");
-    else setError(res.error);
+    // Kamu bisa ganti username & password rahasia kamu di sini
+    if (username === 'admin' && password === 'veyora123') {
+      localStorage.setItem('admin_token', 'veyora-secret-token-active');
+      navigate('/admin/dashboard');
+    } else {
+      setError('Username atau Password salah!');
+    }
   };
 
   return (
-    <div className="min-h-screen grid place-items-center bg-[#080D10] px-6">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-10">
+    <div className="min-h-screen bg-[#080D10] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#121417] border border-[#23262B] rounded-2xl p-8 space-y-6">
+        <div className="text-center space-y-2">
           <span className="font-head font-bold text-2xl tracking-[0.18em] text-white">VEYORA</span>
-          <span className="font-body text-[10px] uppercase tracking-[0.35em] text-[#A3AAB4] mt-1">Admin Panel</span>
+          <p className="text-xs text-[#A3AAB4]">Masuk ke Panel Khusus Admin</p>
         </div>
 
-        <form onSubmit={submit} className="surface-card p-8" data-testid="admin-login-form">
-          <h1 className="font-head text-white text-xl mb-6">Masuk ke Dashboard</h1>
+        {error && (
+          <div className="p-3 bg-red-950/40 border border-red-800/40 text-red-300 text-xs rounded-xl text-center">
+            {error}
+          </div>
+        )}
 
-          {error && (
-            <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 font-body" data-testid="login-error">
-              {error}
-            </div>
-          )}
-
-          <label className="block mb-4">
-            <span className="font-body text-sm text-[#A3AAB4] mb-2 block">Email</span>
+        <form onSubmit={handleLogin} className="space-y-4 text-xs">
+          <div>
+            <label className="block text-[#A3AAB4] mb-1">Username Admin</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#A3AAB4] absolute left-4 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-[#A3AAB4] absolute left-3 top-3.5" />
               <input
-                data-testid="login-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
                 required
-                className="w-full bg-[#080D10] border border-[#23262B] rounded-xl pl-11 pr-4 py-3 text-white font-body text-sm focus:border-[#5C6773] outline-none transition-colors"
-                placeholder="admin@veyora.studio"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-[#080D10] border border-[#23262B] focus:border-[#5C6773] rounded-xl py-3 pl-10 pr-3 text-white outline-none"
+                placeholder="Masukkan username"
               />
             </div>
-          </label>
+          </div>
 
-          <label className="block mb-6">
-            <span className="font-body text-sm text-[#A3AAB4] mb-2 block">Password</span>
+          <div>
+            <label className="block text-[#A3AAB4] mb-1">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#A3AAB4] absolute left-4 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#A3AAB4] absolute left-3 top-3.5" />
               <input
-                data-testid="login-password"
                 type="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-[#080D10] border border-[#23262B] rounded-xl pl-11 pr-4 py-3 text-white font-body text-sm focus:border-[#5C6773] outline-none transition-colors"
+                className="w-full bg-[#080D10] border border-[#23262B] focus:border-[#5C6773] rounded-xl py-3 pl-10 pr-3 text-white outline-none"
                 placeholder="••••••••"
               />
             </div>
-          </label>
+          </div>
 
-          <button type="submit" disabled={loading} data-testid="login-submit" className="btn-primary w-full">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Masuk"}
+          <button
+            type="submit"
+            className="w-full bg-[#5C6773] hover:bg-[#D9DEE6] hover:text-black text-white font-semibold py-3 rounded-xl transition-all shadow-lg text-xs mt-2"
+          >
+            Masuk Sekarang
           </button>
         </form>
       </div>
