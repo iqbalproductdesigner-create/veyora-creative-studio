@@ -123,13 +123,13 @@ export default function Portfolio() {
         
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-4 max-w-2xl">
-            <span className="inline-block text-xs font-semibold tracking-wider text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full bg-emerald-500/10 uppercase">
+            <span className="inline-block text-xs font-semibold tracking-wider text-[#D9DEE6] border border-[#23262B] px-3 py-1 rounded-full bg-[#121417] uppercase">
               PORTOFOLIO & HASIL KARYA
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
               Project yang Pernah Kami Bantu
             </h2>
-            <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+            <p className="text-[#A3AAB4] text-sm sm:text-base leading-relaxed">
               Dari desain kebutuhan dasar bisnis hingga website yang siap menaikkan kelas usaha kamu.
             </p>
           </div>
@@ -138,13 +138,13 @@ export default function Portfolio() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrevSlide}
-                className="p-3 rounded-full bg-[#14181D] border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500 hover:text-black transition-all duration-300 text-white shadow-lg"
+                className="p-3 rounded-full bg-[#121417] border border-[#23262B] hover:border-[#5C6773] hover:bg-[#5C6773] hover:text-white transition-all duration-300 text-white shadow-lg"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleNextSlide}
-                className="p-3 rounded-full bg-[#14181D] border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500 hover:text-black transition-all duration-300 text-white shadow-lg"
+                className="p-3 rounded-full bg-[#121417] border border-[#23262B] hover:border-[#5C6773] hover:bg-[#5C6773] hover:text-white transition-all duration-300 text-white shadow-lg"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -153,9 +153,9 @@ export default function Portfolio() {
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-gray-500">Memuat karya dari database...</div>
+          <div className="text-center py-16 text-[#A3AAB4]">Memuat karya dari database...</div>
         ) : portfolios.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">Belum ada data karya di database.</div>
+          <div className="text-center py-16 text-[#A3AAB4]">Belum ada data karya di database.</div>
         ) : (
           <div className="space-y-8">
             <div
@@ -172,7 +172,7 @@ export default function Portfolio() {
                   <div
                     key={item.id || item._id || idx}
                     onClick={() => openDrawer(item)}
-                    className="min-w-[300px] sm:min-w-[380px] lg:min-w-[420px] snap-start group relative rounded-2xl bg-[#0D0E12] border border-white/10 overflow-hidden hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                    className="min-w-[300px] sm:min-w-[380px] lg:min-w-[420px] snap-start group relative rounded-2xl bg-[#121417] border border-[#23262B] overflow-hidden hover:border-[#5C6773] transition-all duration-300 flex flex-col justify-between cursor-pointer"
                   >
                     <div className="aspect-[4/3] overflow-hidden relative bg-black/40">
                       <img
@@ -182,7 +182,7 @@ export default function Portfolio() {
                         onError={(e) => { e.target.src = fallbackImages[idx % fallbackImages.length]; }}
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <span className="inline-flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-medium text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <span className="inline-flex items-center gap-2 bg-[#FFFFFF] text-black px-4 py-2 rounded-full font-medium text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                           <Eye className="w-4 h-4" /> Lihat Detail
                         </span>
                       </div>
@@ -190,20 +190,20 @@ export default function Portfolio() {
 
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-2">
-                        <span className="inline-block text-[10px] font-semibold tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+                        <span className="inline-block text-[10px] font-semibold tracking-wider text-[#D9DEE6] bg-[#1F2329] border border-[#23262B] px-2.5 py-1 rounded-md">
                           {item.category || 'Branding & Graphics'}
                         </span>
-                        <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+                        <h3 className="text-xl font-bold text-white group-hover:text-[#D9DEE6] transition-colors line-clamp-1">
                           {item.project_name || item.title || 'Proyek Veyora'}
                         </h3>
-                        <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-[#A3AAB4] leading-relaxed line-clamp-2">
                           {item.description || item.overview || 'Deskripsi hasil karya proyek Veyora Creative Studio.'}
                         </p>
                       </div>
 
-                      <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                      <div className="pt-4 border-t border-[#23262B] flex items-center justify-between text-xs text-[#A3AAB4]">
                         <span>{item.client_name || item.client || 'Klien Veyora'}</span>
-                        <span className="inline-flex items-center gap-1 font-medium text-gray-300 group-hover:text-emerald-400 transition-colors">
+                        <span className="inline-flex items-center gap-1 font-medium text-[#D9DEE6] group-hover:text-white transition-colors">
                           Detail <ArrowUpRight className="w-3.5 h-3.5" />
                         </span>
                       </div>
@@ -225,7 +225,7 @@ export default function Portfolio() {
                     }
                   }}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    i === activeSlide ? 'w-8 bg-emerald-400 shadow-lg' : 'w-2 bg-white/20'
+                    i === activeSlide ? 'w-8 bg-[#5C6773] shadow-lg' : 'w-2 bg-white/20'
                   }`}
                 />
               ))}
@@ -239,8 +239,8 @@ export default function Portfolio() {
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300" onClick={closeDrawer} />
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md sm:max-w-lg bg-[#0F1115] border-l border-white/10 text-white flex flex-col justify-between shadow-2xl relative z-10">
-              <button onClick={closeDrawer} className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black p-2 rounded-full text-gray-300 hover:text-white border border-white/10">
+            <div className="w-screen max-w-md sm:max-w-lg bg-[#121417] border-l border-[#23262B] text-white flex flex-col justify-between shadow-2xl relative z-10">
+              <button onClick={closeDrawer} className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black p-2 rounded-full text-[#A3AAB4] hover:text-white border border-[#23262B]">
                 <X className="w-5 h-5" />
               </button>
 
@@ -248,17 +248,17 @@ export default function Portfolio() {
                 {(() => {
                   const imgs = getItemImages(selectedItem);
                   return (
-                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-black/60 border border-white/10">
+                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-black/60 border border-[#23262B]">
                       <img src={imgs[currentImageIndex]} alt="Portfolio Gallery" className="w-full h-full object-cover" />
                       {imgs.length > 1 && (
                         <>
-                          <button onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1))} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-white/10">
+                          <button onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1))} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-[#23262B]">
                             <ChevronLeft className="w-4 h-4" />
                           </button>
-                          <button onClick={() => setCurrentImageIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-white/10">
+                          <button onClick={() => setCurrentImageIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black p-2 rounded-full border border-[#23262B]">
                             <ChevronRight className="w-4 h-4" />
                           </button>
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#23262B]">
                             {imgs.map((_, i) => (
                               <button key={i} onClick={() => setCurrentImageIndex(i)} className={`h-1.5 rounded-full transition-all duration-300 ${i === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/40'}`} />
                             ))}
@@ -271,38 +271,38 @@ export default function Portfolio() {
 
                 <div className="space-y-5">
                   <div>
-                    <span className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
+                    <span className="text-[10px] font-semibold tracking-wider text-[#A3AAB4] uppercase">
                       {selectedItem.category || 'WEBSITE & DIGITAL ADS'}
                     </span>
                     <h2 className="text-2xl font-bold text-white mt-1">
                       {selectedItem.project_name || selectedItem.title}
                     </h2>
-                    <p className="text-xs text-gray-400 leading-relaxed mt-2">
+                    <p className="text-xs text-[#A3AAB4] leading-relaxed mt-2">
                       {selectedItem.description || selectedItem.overview}
                     </p>
                   </div>
 
                   {selectedItem.challenge && (
                     <div className="space-y-1">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">TANTANGAN</h4>
-                      <p className="text-xs text-gray-300 leading-relaxed">{selectedItem.challenge}</p>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#A3AAB4]">TANTANGAN</h4>
+                      <p className="text-xs text-[#D9DEE6] leading-relaxed">{selectedItem.challenge}</p>
                     </div>
                   )}
 
                   {selectedItem.solution && (
                     <div className="space-y-1">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">SOLUSI</h4>
-                      <p className="text-xs text-gray-300 leading-relaxed">{selectedItem.solution}</p>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#A3AAB4]">SOLUSI</h4>
+                      <p className="text-xs text-[#D9DEE6] leading-relaxed">{selectedItem.solution}</p>
                     </div>
                   )}
 
                   {Array.isArray(selectedItem.deliverables) && selectedItem.deliverables.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">DELIVERABLES</h4>
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#A3AAB4]">DELIVERABLES</h4>
                       <ul className="space-y-1.5">
                         {selectedItem.deliverables.map((item, idx) => (
-                          <li key={idx} className="text-xs text-gray-300 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <li key={idx} className="text-xs text-[#D9DEE6] flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#5C6773]" />
                             {item}
                           </li>
                         ))}
@@ -312,8 +312,8 @@ export default function Portfolio() {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-white/10 bg-[#0F1115]">
-                <button onClick={handlePesanProyek} className="w-full bg-[#272B33] hover:bg-emerald-500 hover:text-black text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg">
+              <div className="p-4 border-t border-[#23262B] bg-[#121417]">
+                <button onClick={handlePesanProyek} className="w-full bg-[#5C6773] hover:bg-[#D9DEE6] hover:text-black text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg">
                   Pesan Proyek Serupa <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </button>
               </div>

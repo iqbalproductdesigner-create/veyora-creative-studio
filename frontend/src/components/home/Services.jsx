@@ -7,6 +7,12 @@ export default function Services() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fallbackServiceImages = [
+    'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop'
+  ];
+
   useEffect(() => {
     fetchServices();
   }, []);
@@ -34,78 +40,72 @@ export default function Services() {
     return 'Hubungi Kami';
   };
 
+  const getServiceImage = (service, idx) => {
+    const img = service.cover_image || service.image || service.og_image;
+    if (img && typeof img === 'string' && img.trim() !== '') return img;
+    return fallbackServiceImages[idx % fallbackServiceImages.length];
+  };
+
   return (
     <section id="services" className="py-24 bg-[#080D10] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="space-y-4 max-w-2xl">
-            <span className="inline-block text-xs font-semibold tracking-wider text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full bg-emerald-500/10 uppercase">
+            <span className="inline-block text-xs font-semibold tracking-wider text-[#D9DEE6] border border-[#23262B] px-3 py-1 rounded-full bg-[#121417] uppercase">
               LAYANAN KAMI
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
               Semua yang dibutuhkan brand Anda
             </h2>
           </div>
-          <p className="text-gray-400 text-sm sm:text-base max-w-md leading-relaxed">
+          <p className="text-[#A3AAB4] text-sm sm:text-base max-w-md leading-relaxed">
             Dari kemasan hingga konten digital, kami siapkan semuanya dalam satu tempat yang rapi dan terjangkau.
           </p>
         </div>
 
-        {/* Dynamic Grid Services */}
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Memuat layanan dari database...</div>
+          <div className="text-center py-12 text-[#A3AAB4]">Memuat layanan dari database...</div>
         ) : services.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">Belum ada data layanan di database.</div>
+          <div className="text-center py-12 text-[#A3AAB4]">Belum ada data layanan di database.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, idx) => (
               <Link
                 key={service.id || service._id || idx}
                 to={`/services/${service.slug}`}
-                className="group relative rounded-2xl bg-[#0D0E12] border border-white/10 overflow-hidden hover:border-emerald-500/50 transition-all duration-300 flex flex-col justify-between p-6"
+                className="group relative rounded-2xl bg-[#121417] border border-[#23262B] overflow-hidden hover:border-[#5C6773] transition-all duration-300 flex flex-col justify-between p-6"
               >
-                {/* Image / Banner Thumbnail */}
                 <div className="aspect-[16/9] rounded-xl overflow-hidden mb-6 bg-black/40 relative">
-                  {service.cover_image || service.image || service.og_image ? (
-                    <img
-                      src={service.cover_image || service.image || service.og_image}
-                      alt={service.title || service.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-emerald-950/40 to-black flex items-center justify-center p-4">
-                      <span className="text-xs font-semibold text-emerald-400/60 uppercase tracking-widest">
-                        VEYORA STUDIO
-                      </span>
-                    </div>
-                  )}
+                  <img
+                    src={getServiceImage(service, idx)}
+                    alt={service.title || service.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { e.target.src = fallbackServiceImages[idx % fallbackServiceImages.length]; }}
+                  />
                 </div>
 
-                {/* Info Title */}
                 <div className="space-y-3 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                      <h3 className="text-xl font-bold text-white group-hover:text-[#D9DEE6] transition-colors">
                         {service.title || service.name}
                       </h3>
-                      <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                      <ArrowUpRight className="w-5 h-5 text-[#A3AAB4] group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                     </div>
-                    <p className="text-xs text-gray-400 leading-relaxed mt-2 line-clamp-2">
+                    <p className="text-xs text-[#A3AAB4] leading-relaxed mt-2 line-clamp-2">
                       {service.short_description || service.description || 'Layanan profesional dari Veyora Creative Studio.'}
                     </p>
                   </div>
 
-                  {/* Pricing Footer */}
-                  <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400 mt-4">
+                  <div className="pt-4 border-t border-[#23262B] flex items-center justify-between text-xs text-[#A3AAB4] mt-4">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-gray-500 block">MULAI DARI</span>
-                      <span className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                      <span className="text-[10px] uppercase tracking-wider text-[#A3AAB4] block">MULAI DARI</span>
+                      <span className="font-semibold text-white group-hover:text-[#D9DEE6] transition-colors">
                         {getLowestPrice(service)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-500">
+                    <div className="flex items-center gap-1 text-[#A3AAB4]">
                       <Clock className="w-3.5 h-3.5" />
                       <span className="text-[11px]">{service.duration || '3 - 7 Hari'}</span>
                     </div>
