@@ -1,26 +1,33 @@
-import axios from "axios";
+import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API = `${BACKEND_URL}/api`;
+const API_BASE_URL = process.env.REACT_APP_API_URL 
+  ? `${process.env.REACT_APP_API_URL}/api`
+  : 'http://localhost:8000/api';
 
-const api = axios.create({ baseURL: API });
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("veyora_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const token = localStorage.getItem('admin_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-export default api;
+export const formatApiErrorDetail = (error) => {
+  if (error?.response?.data?.detail) {
+    const detail = error.response.data.detail;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      return detail.map((err) => err.msg || JSON.stringify(err)).join(', ');
+    }
+  }
+  return error?.message || 'Terjadi kesalahan pada server';
+};
 
-export function formatApiErrorDetail(detail) {
-  if (detail == null) return "Terjadi kesalahan. Silakan coba lagi.";
-  if (typeof detail === "string") return detail;
-  if (Array.isArray(detail))
-    return detail
-      .map((e) => (e && typeof e.msg === "string" ? e.msg : JSON.stringify(e)))
-      .filter(Boolean)
-      .join(" ");
-  if (detail && typeof detail.msg === "string") return detail.msg;
-  return String(detail);
-}
+export default api;

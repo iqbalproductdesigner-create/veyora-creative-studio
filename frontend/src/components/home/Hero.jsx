@@ -1,142 +1,54 @@
 import React from 'react';
-import { useContent } from '../../context/ContentContext';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { ArrowRight, MessageSquare, Star } from 'lucide-react';
-import { getWhatsAppLink } from '../../lib/whatsapp';
-import { HOME_TEST_IDS } from '../../constants/testIds';
+import Lanyard from '../3d/Lanyard';
+import { waLink } from '../../lib/whatsapp';
 
 export default function Hero() {
-  const { content } = useContent();
-  const hero = content?.hero || {};
-
-  const handleConsultation = () => {
-    window.open(getWhatsAppLink(hero.cta_whatsapp_message || 'Halo Veyora, saya ingin konsultasi gratis'), '_blank');
-  };
-
-  const handlePortfolioClick = () => {
-    const el = document.getElementById('portfolio');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <section data-testid={HOME_TEST_IDS.HERO_SECTION} className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+    <section className="relative bg-[#080D10] text-white overflow-hidden min-h-screen flex items-center pt-24 pb-16">
       {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-emerald-500/10 blur-[140px] pointer-events-none rounded-full" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      {/* 3D Canvas Layer */}
+      <Lanyard />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20 pointer-events-none">
+        {/* Layout Reordered: Di Mobile Kartu di Atas (order-2 untuk teks, order-1 untuk area 3D) */}
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 min-h-[600px]">
           
-          {/* Left Column */}
-          <div className="lg:col-span-7 space-y-8">
-            <Badge 
-              data-testid={HOME_TEST_IDS.HERO_BADGE}
-              variant="outline" 
-              className="px-4 py-1.5 text-xs font-medium tracking-wide uppercase border-border/60 bg-secondary/50 backdrop-blur-sm"
-            >
-              {hero.badge || 'Partner Kreatif Bisnis Anda'}
-            </Badge>
+          {/* Teks Content (Mobile: Order 2 di Bawah, Desktop: Order 1 di Kiri) */}
+          <div className="w-full lg:w-1/2 space-y-6 text-left order-2 lg:order-1 pointer-events-auto pt-6 lg:pt-0">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-300 border border-white/10 px-3.5 py-1.5 rounded-full bg-white/[0.03] backdrop-blur-md w-fit">
+              <span className="text-emerald-400">✦</span> PARTNER KREATIF BISNIS ANDA
+            </div>
 
-            <h1 
-              data-testid={HOME_TEST_IDS.HERO_TITLE}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.15]"
-            >
-              {hero.title || 'Bantu Produkmu Terlihat Lebih Profesional'}
+            <h1 className="font-bold text-white text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1]">
+              Bantu Produkmu Terlihat Lebih Profesional
             </h1>
 
-            <p 
-              data-testid={HOME_TEST_IDS.HERO_DESCRIPTION}
-              className="text-lg text-muted-foreground leading-relaxed max-w-2xl"
-            >
-              {hero.description || 'Veyora hadir sebagai partner kreatif jangka panjang. Kami bantu UMKM dan brand lokal tampil lebih meyakinkan lewat kemasan, logo, dan visual yang menumbuhkan kepercayaan pelanggan.'}
+            <p className="text-[#A3AAB4] text-base md:text-lg leading-relaxed max-w-lg">
+              Veyora hadir sebagai partner kreatif jangka panjang. Kami bantu UMKM dan brand lokal tampil lebih meyakinkan lewat kemasan, logo, dan visual.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Button 
-                data-testid={HOME_TEST_IDS.HERO_CTA_PRIMARY}
-                size="lg" 
-                onClick={handleConsultation}
-                className="rounded-full px-8 h-12 text-base font-semibold gap-2 shadow-lg hover:shadow-primary/25 transition-all"
+              <a
+                href={waLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-gray-200 transition-all text-sm shadow-lg active:scale-95 flex items-center gap-2"
               >
-                <MessageSquare className="w-5 h-5" />
-                {hero.cta_primary_text || 'Konsultasi Gratis'}
-              </Button>
-
-              <Button 
-                data-testid={HOME_TEST_IDS.HERO_CTA_SECONDARY}
-                variant="outline" 
-                size="lg" 
-                onClick={handlePortfolioClick}
-                className="rounded-full px-8 h-12 text-base font-semibold gap-2 border-border/80 hover:bg-secondary/80 transition-all"
+                <span>💬</span> Konsultasi Gratis
+              </a>
+              <a
+                href="#portfolio"
+                className="px-6 py-3.5 rounded-full border border-white/20 text-white hover:border-white transition-all text-sm font-medium active:scale-95"
               >
-                {hero.cta_secondary_text || 'Lihat Portfolio'}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+                Lihat Portfolio &rarr;
+              </a>
             </div>
-
-            {/* Social Proof (Hanya bagian bulatan ini yang diisi gambar avatar) */}
-            <div className="pt-6 border-t border-border/40 flex items-center gap-6">
-              <div className="flex -space-x-3 overflow-hidden">
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 1"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 2"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 3"
-                />
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-background object-cover"
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80"
-                  alt="Client Avatar 4"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-amber-400">
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <Star className="w-4 h-4 fill-amber-400" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  {hero.social_proof_text || 'Dipercaya 180+ brand lokal'}
-                </p>
-              </div>
-            </div>
-
           </div>
 
-          {/* Right Column: Hero Image Showcase */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              <div className="relative rounded-3xl overflow-hidden border border-border/60 bg-card p-3 shadow-2xl">
-                <img 
-                  data-testid={HOME_TEST_IDS.HERO_IMAGE}
-                  src={hero.image_url || 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop'} 
-                  alt="Veyora Showcase"
-                  className="w-full h-[420px] object-cover rounded-2xl"
-                />
-                
-                {/* Floating Stat Card */}
-                {hero.stat_number && (
-                  <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md border border-border/80 p-4 rounded-2xl shadow-xl space-y-0.5">
-                    <p className="text-2xl font-bold text-foreground">{hero.stat_number}</p>
-                    <p className="text-xs text-muted-foreground">{hero.stat_label || 'Klien merasa puas'}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Spacer Area 3D (Mobile: Order 1 di Atas, Desktop: Order 2 di Kanan) */}
+          <div className="w-full lg:w-1/2 h-[320px] sm:h-[400px] lg:h-[550px] order-1 lg:order-2 pointer-events-none" />
 
         </div>
       </div>
